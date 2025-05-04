@@ -1,0 +1,182 @@
+#include <stdio.h>
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
+#define LIS3DH_ADDR 0x19
+#define I2C_PORT i2c0
+#define SDA_PIN 8
+#define SCL_PIN 9
+#define LED_PIN 3
+#define LED2_PIN 4
+
+const float lis3dh_sensitivity = 0.004; // Sensitivity for +/-8g
+const float tap_threshold = 1.5;
+const float tap_max = 6;
+QueueHandle_t z_accel_queue;
+
+typedef enum {
+    LED_EVENT_TAP1,
+    LED_EVENT_TAP2,
+} led_event_t;
+QueueHandle_t led_event_queue;
+
+void lis3dh_init() {
+    uint8_t ctrl_reg1[] = {0x20, 0b01010100};                       // 0101.. 100Hz frequency, ..0111 turn all AXIS on
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg1, 2, false); //and turn on all axis
+    
+    //uint8_t ctrl_reg4[] = {0x23, 0b00000000}; //for +/-2g
+    //uint8_t ctrl_reg4[] = {0x23, 0b00100000}; // dor +/-4g sensivity s35 in dataset
+    uint8_t ctrl_reg4[] = {0x23, 0b00010000};   // for +/-8g
+    //uint8_t ctrl_reg4[] = {0x23, 0b00110000}; // for +/-16g
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg4, 2, false);
+    vTaskDelay(pdMS_TO_TICKS(10)); // after i2c_write_blocking
+}
+
+float read_z_axis() {
+    uint8_t reg = 0x2C;                                                 // OUT_Z_L register address
+    uint8_t data[2];
+
+    if (i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &reg, 1, true) < 0)   // Write register address
+        return 0;
+
+    if (i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, data, 2, false) < 0)   // Read 2 bytes
+        return 0;
+
+    int16_t raw = (int16_t)((data[1] << 8) | data[0]);
+    raw >>= 4; // (12-bit output in 16-bit word)
+
+    return (float)raw * lis3dh_sensitivity;
+}
+
+void task_read_accel(void *params) {
+    lis3dh_init();
+
+    uint8_t who_am_i_reg = 0x0F;                                        //check addres I2C
+    uint8_t who_am_i = 0;                                               //expect 0x33
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &who_am_i_reg, 1, true);
+    i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, &who_am_i, 1, false);
+    printf("WHO_AM_I = 0x%02X\n", who_am_i);                            //display adress
+
+    while (1) {
+        float z_g = read_z_axis();
+        xQueueSend(z_accel_queue, &z_g, 0);
+        vTaskDelay(pdMS_TO_TICKS(15));
+    }
+}
+
+void task_detect_tap(void *params) {
+    float z = 0; 
+    float last_z = 0;
+    float LPFz = 0;                                            //low pass filter for Z axis                                               
+    const float alpha = 0.2;
+    int tap_count = 0;                                              // count taps
+    uint32_t last_tap_time = 0;                                     // time of last taps
+
+    while (1) {
+        if (xQueueReceive(z_accel_queue, &z, portMAX_DELAY)) {      //receive data from queue
+
+            LPFz = alpha * z + (1 - alpha) * LPFz;                  //low pass filter for Z axis
+            float delta = LPFz - last_z;
+            last_z = LPFz;
+                                                     
+            //float delta_g = delta * 0.001; //only for +-2g
+            //float delta_g = delta * 0.002; //only for +-4g
+            //float delta_g = delta * 0.004; //only for +-8g
+            //float delta_g = delta * 0.0012; //only for +-16g
+            //printf("Delta Z: %.3f\n", delta);
+            // or use 'g' printf("Delta_g Z: %.3f\n", delta_g);
+        
+            if ((delta < -tap_threshold || delta > tap_threshold) && (delta > -tap_max || delta < tap_max)) {
+                uint32_t current_time = xTaskGetTickCount();        // get current time
+                                                                    
+                if (tap_count == 0) {                               //ONE TAP DETECTED   
+                    printf("Detected 1 tap!\n");
+                    tap_count = 1;                                  // increase counter
+                    last_tap_time = current_time;                   // update time
+
+                    // gpio_put(LED_PIN, 1); 
+                    // vTaskDelay(pdMS_TO_TICKS(100));
+                    // gpio_put(LED_PIN, 0);
+                    led_event_t event = LED_EVENT_TAP1;             // Create event for LED1
+                    xQueueSend(led_event_queue, &event, 0);
+
+                } else if(tap_count == 1 && (current_time - last_tap_time) <= pdMS_TO_TICKS(1000)) {
+                    printf("Detected 2 taps!\n");                   //TWO TAPS DETECTED
+                    // gpio_put(LED2_PIN, 1);
+                    // vTaskDelay(pdMS_TO_TICKS(100));
+                    // gpio_put(LED2_PIN, 0);
+                    tap_count = 0;                                  // Reset counter
+                    led_event_t event = LED_EVENT_TAP2;             // Create event for LED2
+                    xQueueSend(led_event_queue, &event, 0);
+
+                } else {
+                    printf("Tap too large! Turning off LEDs.\n");
+                    tap_count = 0;                                  // increase counter   
+                    last_tap_time = current_time;                   // update time
+                }
+            }
+
+            if (tap_count == 1 && (xTaskGetTickCount() - last_tap_time) > pdMS_TO_TICKS(1000)) { //if tap count is 1 and time is over 1s
+                printf("Tap timeout! Resetting counter.\n");        //RESET TAP DETECTED
+                tap_count = 0;                                      // Reset counter
+            }
+        }
+    }
+}
+
+void i2c_scan() {                                                       //scan I2C bus - debugging function
+    printf("Scanning I2C bus...\n");                
+    for (uint8_t addr = 0x08; addr <= 0x77; addr++) {                   //from 0x08 to 0x77
+        uint8_t dummy;                                                  //buffor for read data    
+        if (i2c_read_blocking(I2C_PORT, addr, &dummy, 1, false) >= 0) { //if find decice print address
+            printf("Device found at 0x%02X\n", addr);
+        }
+    }
+}
+
+void task_led_event(void *params) {
+    led_event_t event;
+    while (1) {
+        if (xQueueReceive(led_event_queue, &event, portMAX_DELAY)) { // Wait for LED event
+            switch (event) {
+                case LED_EVENT_TAP1:
+                    printf("TAP 1 DETECTED\n");
+                    gpio_put(LED_PIN, 1); // Turn on LED1
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                    gpio_put(LED_PIN, 0); // Turn off LED1
+                    break;
+                case LED_EVENT_TAP2:
+                    printf("TAP 2 DETECTED\n");
+                    gpio_put(LED2_PIN, 1); // Turn on LED2
+                    vTaskDelay(pdMS_TO_TICKS(100));
+                    gpio_put(LED2_PIN, 0); // Turn off LED2
+                    break;
+            }
+        }
+    }
+}
+
+int main() {
+    stdio_init_all();                                               //init UART
+    i2c_init(I2C_PORT, 400 * 1000);                                 //init I2C at 400kHz
+    gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);                     //set SDA pin to I2C function
+    gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);                     //set SCL pin to I2C function
+    gpio_pull_up(SDA_PIN);                                         //enable pull-up resistors
+    gpio_pull_up(SCL_PIN);                                         //enable pull-up resistors
+    
+    gpio_init(LED_PIN);                                            //init LED pin
+    gpio_set_dir(LED_PIN, GPIO_OUT);                              //set LED pin to output
+    gpio_init(LED2_PIN);                                           //init LED2 pin
+    gpio_set_dir(LED2_PIN, GPIO_OUT);                             //set LED2 pin to output
+
+    z_accel_queue = xQueueCreate(32, sizeof(float));              //send to queue
+    led_event_queue = xQueueCreate(8, sizeof(led_event_t)); // Create queue for LED events
+    xTaskCreate(task_read_accel, "ReadAccel", 1024, NULL, 3, NULL);
+    xTaskCreate(task_detect_tap, "DetectTap", 512, NULL, 2, NULL);
+    xTaskCreate(task_led_event, "LEDHandler", 512, NULL, 1, NULL);
+    vTaskStartScheduler();                                  
+    return 0;
+}
