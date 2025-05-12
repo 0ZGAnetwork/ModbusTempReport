@@ -12,155 +12,133 @@
 #define LED_PIN 3
 #define LED2_PIN 4
 
-const float lis3dh_sensitivity = 0.004; // Sensitivity for +/-8g
-const float tap_threshold = 1.5;
-const float tap_max = 6;
 QueueHandle_t z_accel_queue;
 
 void lis3dh_init() {
-    uint8_t ctrl_reg1[] = {0x20, 0b01010100};                       // 0101.. 100Hz frequency, ..0111 turn all AXIS on
-    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg1, 2, false); //and turn on all axis
+    // Ustawienie akcelerometru na 100Hz i włączenie wszystkich osi
+    uint8_t ctrl_reg1[] = {0x20, 0b01010111}; // 100Hz, wszystkie osie włączone
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg1, 2, false);
     
     //uint8_t ctrl_reg4[] = {0x23, 0b00000000}; //for +/-2g
-    //uint8_t ctrl_reg4[] = {0x23, 0b00100000}; // dor +/-4g sensivity s35 in dataset
-    //uint8_t ctrl_reg4[] = {0x23, 0b00010000};   // for +/-8g
-    uint8_t ctrl_reg4[] = {0x23, 0b00110000}; // for +/-16g
+    //uint8_t ctrl_reg4[] = {0x23, 0b00100000}; // +/-4g sensitivity
+    //uint8_t ctrl_reg4[] = {0x23, 0b00010000}; // +/-8g
+    uint8_t ctrl_reg4[] = {0x23, 0b00110000}; // +/-16g
     i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg4, 2, false);
-    vTaskDelay(pdMS_TO_TICKS(10)); // after i2c_write_blocking
 }
 
-float read_z_axis() {
-    uint8_t reg = 0x2C;                                                 // OUT_Z_L register address
+int16_t read_z_axis() {
+    uint8_t reg = 0x2C | 0x80; // OUT_Z_L, auto-increment
     uint8_t data[2];
-
-    if (i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &reg, 1, true) < 0)   // Write register address
-        return 0;
-
-    if (i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, data, 2, false) < 0)   // Read 2 bytes
-        return 0;
-
-    int16_t raw = (int16_t)((data[1] << 8) | data[0]);
-    raw >>= 4; // (12-bit output in 16-bit word)
-
-    return (float)raw * lis3dh_sensitivity;
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &reg, 1, true);
+    i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, data, 2, false);
+    return (int16_t)(data[1] << 8 | data[0]);
 }
 
 void task_read_accel(void *params) {
     lis3dh_init();
-
-    uint8_t who_am_i_reg = 0x0F;                                        //check addres I2C
-    uint8_t who_am_i = 0;                                               //expect 0x33
+    uint8_t who_am_i_reg = 0x0F;
+    
+    uint8_t who_am_i;
     i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &who_am_i_reg, 1, true);
     i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, &who_am_i, 1, false);
-    printf("WHO_AM_I = 0x%02X\n", who_am_i);                            //display adress
+    printf("WHO_AM_I = 0x%02X\n", who_am_i);
+
+    // Odczytaj CTRL_REG1
+    uint8_t ctrl_reg1 = 0x20;
+    uint8_t ctrl_val;
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &ctrl_reg1, 1, true);
+    i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, &ctrl_val, 1, false);
+    printf("CTRL_REG1 = 0x%02X\n", ctrl_val); // Oczekiwane: 0x57
 
     while (1) {
-        float z_g = read_z_axis();
-        xQueueSend(z_accel_queue, &z_g, 0);
-        vTaskDelay(pdMS_TO_TICKS(15));
+        int16_t z = read_z_axis();
+        printf("Z-axis: %d\n", z);
+        xQueueSend(z_accel_queue, &z, 0);
+        vTaskDelay(pdMS_TO_TICKS(5)); // ~200Hz
     }
 }
 
 void task_detect_tap(void *params) {
-    float z = 0; 
-    float last_z = 0;
-    float LPFz = 0;                                            //low pass filter for Z axis                                               
-    const float alpha = 0.2;
-    int tap_count = 0;                                              // count taps
-    uint32_t last_tap_time = 0;                                     // time of last taps
+    int16_t z = 0;
+    int16_t last = 0;
+    int tap_count = 0;  // Licznik tapnięć
+    uint32_t last_tap_time = 0;  // Czas ostatniego tapnięcia
 
     while (1) {
-        if (xQueueReceive(z_accel_queue, &z, portMAX_DELAY)) {      //receive data from queue
+        if (xQueueReceive(z_accel_queue, &z, portMAX_DELAY)) {
+            int16_t delta = z - last;
+            printf("Delta Z: %d\n", delta);
 
-            LPFz = alpha * z + (1 - alpha) * LPFz;                  //low pass filter for Z axis
-            float delta = LPFz - last_z;
-            last_z = LPFz;
-                                                     
-            //float delta_g = delta * 0.001; //only for +-2g
-            //float delta_g = delta * 0.002; //only for +-4g
-            //float delta_g = delta * 0.004; //only for +-8g
-            //float delta_g = delta * 0.0012; //only for +-16g
-            //printf("Delta Z: %.3f\n", delta);
-            // or use 'g' printf("Delta_g Z: %.3f\n", delta_g);
-        
-            if (delta < -tap_threshold || delta > tap_threshold && delta > -tap_max || delta < tap_max) {
-                uint32_t current_time = xTaskGetTickCount();        // get current time
-                                                                    
-                if (tap_count == 0) {                               //ONE TAP DETECTED   
+            // Sprawdzamy, czy tapnięcie miało miejsce
+            if (delta > 800 || delta < -800) {  // Threshold do dostrojenia
+                uint32_t current_time = xTaskGetTickCount();  // Pobierz aktualny czas w tickach
+                
+                // Jeśli tapnięcie wystąpiło w ciągu 1 sekundy od poprzedniego
+                if (tap_count == 1 && (current_time - last_tap_time) <= pdMS_TO_TICKS(500)) {
+                    // Drugie tapnięcie w ciągu 1 sekundy
+                    printf("Detected 2 taps!\n");
+                    gpio_put(LED_PIN, 1);  // Zapal diodę LED1
+                    vTaskDelay(pdMS_TO_TICKS(200));  // Dioda świeci przez 100ms
+                    gpio_put(LED_PIN, 0);  // Wyłącz diodę LED1
+                    tap_count = 0;  // Resetuj licznik po wykryciu dwóch tapnięć
+                } 
+                else if (tap_count == 0) {
+                    // Pierwsze tapnięcie, rozpocznij odliczanie
                     printf("Detected 1 tap!\n");
-                    tap_count = 1;                                  // increase counter
-                    last_tap_time = current_time;                   // update time
-                    gpio_put(LED_PIN, 1); 
-                    vTaskDelay(pdMS_TO_TICKS(100));
-                    gpio_put(LED_PIN, 0);
-                } else if(tap_count == 1 && (current_time - last_tap_time) <= pdMS_TO_TICKS(1000)) {
-                    printf("Detected 2 taps!\n");                   //TWO TAPS DETECTED
-                    gpio_put(LED2_PIN, 1);
-                    vTaskDelay(pdMS_TO_TICKS(100));
-                    gpio_put(LED2_PIN, 0);
-                    tap_count = 0;                                  // Reset counter
-                } else {
-                    printf("Tap too large! Turning off LEDs.\n");
-                    tap_count = 0;                                  // increase counter   
-                    last_tap_time = current_time;                   // update time
+                   gpio_put(LED2_PIN, 1);  // Zapal diodę LED2
+                   vTaskDelay(pdMS_TO_TICKS(200));  // Dioda świeci przez 100ms
+                   gpio_put(LED2_PIN, 0);  // Wyłącz diodę LED2
+                    tap_count = 1;  // Zwiększ licznik tapnięć
+                } 
+                else {
+                    // Resetuj licznik, jeśli nie wykryto drugiego tapnięcia w czasie
+                    tap_count = 0;
                 }
+                
+                last_tap_time = current_time;  // Zaktualizuj czas ostatniego tapnięcia
             }
 
-            if (tap_count == 1 && (xTaskGetTickCount() - last_tap_time) > pdMS_TO_TICKS(1000)) { //if tap count is 1 and time is over 1s
-                printf("Tap timeout! Resetting counter.\n");        //RESET TAP DETECTED
-                tap_count = 0;                                      // Reset counter
-            }
+            last = z;
         }
     }
 }
 
-void i2c_scan() {                                                       //scan I2C bus - debugging function
-    printf("Scanning I2C bus...\n");                
-    for (uint8_t addr = 0x08; addr <= 0x77; addr++) {                   //from 0x08 to 0x77
-        uint8_t dummy;                                                  //buffor for read data    
-        if (i2c_read_blocking(I2C_PORT, addr, &dummy, 1, false) >= 0) { //if find decice print address
+
+
+void i2c_scan() {
+    printf("Scanning I2C bus...\n");
+    for (uint8_t addr = 0x08; addr <= 0x77; addr++) {
+        uint8_t dummy;
+        int result = i2c_read_blocking(I2C_PORT, addr, &dummy, 1, false);
+        if (result >= 0) {
             printf("Device found at 0x%02X\n", addr);
         }
     }
 }
 
-void task_blink_led(void *params) {
-    while (1) {
-        gpio_put(LED_PIN, 1);                                      //turn on LED
-        vTaskDelay(pdMS_TO_TICKS(500));                            //delay 500 ms
-        gpio_put(LED_PIN, 0);                                      //turn off LED
-        vTaskDelay(pdMS_TO_TICKS(500));                            //delay 500 ms
-    }
-}
-
-void task_blink_led2(void *params) {
-    while (1) {
-        gpio_put(LED2_PIN, 1);                                      //turn on LED
-        vTaskDelay(pdMS_TO_TICKS(200));                            //delay 500 ms
-        gpio_put(LED2_PIN, 0);                                      //turn off LED
-        vTaskDelay(pdMS_TO_TICKS(200));                            //delay 500 ms
-    }
-}
-
 int main() {
-    stdio_init_all();                                               //init UART
-    i2c_init(I2C_PORT, 400 * 1000);                                 //init I2C at 400kHz
-    gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);                     //set SDA pin to I2C function
-    gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);                     //set SCL pin to I2C function
-    gpio_pull_up(SDA_PIN);                                         //enable pull-up resistors
-    gpio_pull_up(SCL_PIN);                                         //enable pull-up resistors
+    stdio_init_all();
+    gpio_init(LED_PIN);
+    gpio_set_dir(LED_PIN, GPIO_OUT);
+    gpio_init(LED2_PIN);  // Inicjalizacja pinu LED2
+    gpio_set_dir(LED2_PIN, GPIO_OUT);  // Ustawienie LED2 jako wyjście
     
-    gpio_init(LED_PIN);                                            //init LED pin
-    gpio_set_dir(LED_PIN, GPIO_OUT);                              //set LED pin to output
-    gpio_init(LED2_PIN);                                           //init LED2 pin
-    gpio_set_dir(LED2_PIN, GPIO_OUT);                             //set LED2 pin to output
 
-    z_accel_queue = xQueueCreate(32, sizeof(float));              //send to queue
-    xTaskCreate(task_blink_led,"BlinkLED", 256, NULL, 1, NULL);
-    xTaskCreate(task_blink_led2,"BlinkLED2", 256, NULL, 1, NULL);
-    xTaskCreate(task_read_accel, "ReadAccel", 1024, NULL, 3, NULL);
-    xTaskCreate(task_detect_tap, "DetectTap", 512, NULL, 2, NULL);
+    i2c_init(I2C_PORT, 400 * 1000);
+    gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(SDA_PIN);
+    gpio_pull_up(SCL_PIN);
 
-    vTaskStartScheduler();                                  
+    i2c_scan();
+
+    z_accel_queue = xQueueCreate(32, sizeof(int16_t));
+
+    xTaskCreate(task_read_accel, "ReadAccel", 256, NULL, 1, NULL);
+    xTaskCreate(task_detect_tap, "DetectTap", 256, NULL, 1, NULL);
+
+    vTaskStartScheduler();
+
+    while (1);
     return 0;
 }
