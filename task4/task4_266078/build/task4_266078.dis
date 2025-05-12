@@ -416,7 +416,7 @@ Disassembly of section .text:
 100003aa:	480a      	ldr	r0, [pc, #40]	@ (100003d4 <lis3dh_init+0x3c>)
 100003ac:	f8ad c008 	strh.w	ip, [sp, #8]
 100003b0:	f004 f972 	bl	10004698 <i2c_write_blocking>
-100003b4:	f241 0c23 	movw	ip, #4131	@ 0x1023
+100003b4:	f243 0c23 	movw	ip, #12323	@ 0x3023
 100003b8:	2302      	movs	r3, #2
 100003ba:	2119      	movs	r1, #25
 100003bc:	aa03      	add	r2, sp, #12
