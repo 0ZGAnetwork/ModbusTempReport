@@ -15,14 +15,20 @@
 QueueHandle_t z_accel_queue;
 
 void lis3dh_init() {
-    // Ustawienie akcelerometru na 100Hz i włączenie wszystkich osi
-    uint8_t ctrl_reg1[] = {0x20, 0b01010111}; // 100Hz, wszystkie osie włączone
+
+    uint8_t ctrl_reg1[] = {0x20, 0b01010111}; // 100Hz, all axis enabled
     i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg1, 2, false);
-    
-    //uint8_t ctrl_reg4[] = {0x23, 0b00000000}; //for +/-2g
-    //uint8_t ctrl_reg4[] = {0x23, 0b00100000}; // +/-4g sensitivity
-    //uint8_t ctrl_reg4[] = {0x23, 0b00010000}; // +/-8g
-    uint8_t ctrl_reg4[] = {0x23, 0b00110000}; // +/-16g
+//     0b 0101 0111 = 0x57
+//      Bity:
+//      [7:4] ODR = 0101 → 100 Hz
+//      [3]  LPen = 0 → Normal mode
+//      [2]  Z axis enabled = 1
+//      [1]  Y axis enabled = 1
+//      [0]  X axis enabled = 1
+    //uint8_t ctrl_reg4[] = {0x23, 0b00000000}; //for +/-2g     raw ~16384
+    uint8_t ctrl_reg4[] = {0x23, 0b00100000};  // +/-4g        raw ~8192     
+    //uint8_t ctrl_reg4[] = {0x23, 0b00010000}; // +/-8g        raw ~4096
+    //uint8_t ctrl_reg4[] = {0x23, 0b00110000}; // +/-16g       raw ~2048
     i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, ctrl_reg4, 2, false);
 }
 
@@ -36,23 +42,24 @@ int16_t read_z_axis() {
 
 void task_read_accel(void *params) {
     lis3dh_init();
-    uint8_t who_am_i_reg = 0x0F;
+    uint8_t who_am_i_reg = 0x0F; // adress 0x33 == good
     
     uint8_t who_am_i;
     i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &who_am_i_reg, 1, true);
     i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, &who_am_i, 1, false);
     printf("WHO_AM_I = 0x%02X\n", who_am_i);
 
-    // Odczytaj CTRL_REG1
+    
     uint8_t ctrl_reg1 = 0x20;
     uint8_t ctrl_val;
-    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &ctrl_reg1, 1, true);
-    i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, &ctrl_val, 1, false);
-    printf("CTRL_REG1 = 0x%02X\n", ctrl_val); // Oczekiwane: 0x57
+    i2c_write_blocking(I2C_PORT, LIS3DH_ADDR, &ctrl_reg1, 1, true); // send information for reading CTRL_REG1
+    i2c_read_blocking(I2C_PORT, LIS3DH_ADDR, &ctrl_val, 1, false);  // get 1 bait information from CTRL_REG1 & save it in ctrl_val
+    printf("CTRL_REG1 = 0x%02X\n", ctrl_val); // Expected :0x57
 
     while (1) {
         int16_t z = read_z_axis();
-        printf("Z-axis: %d\n", z);
+        //printf("Z-axis: %d, Z_g: %.2f\n", z, z_g);
+        //printf("Z-axis: %d\n", z);
         xQueueSend(z_accel_queue, &z, 0);
         vTaskDelay(pdMS_TO_TICKS(5)); // ~200Hz
     }
@@ -60,49 +67,46 @@ void task_read_accel(void *params) {
 
 void task_detect_tap(void *params) {
     int16_t z = 0;
-    int16_t last = 0;
-    int tap_count = 0;  // Licznik tapnięć
-    uint32_t last_tap_time = 0;  // Czas ostatniego tapnięcia
+    float last_z = 0;
+    int tap_count = 0;
+    uint32_t last_tap_time = 0;
 
     while (1) {
         if (xQueueReceive(z_accel_queue, &z, portMAX_DELAY)) {
-            int16_t delta = z - last;
-            printf("Delta Z: %d\n", delta);
+            float z_g = z * 0.000122f; // for ±4g
+            float delta = z_g - last_z;
+            last_z = z_g;
 
-            // Sprawdzamy, czy tapnięcie miało miejsce
-            if (delta > 800 || delta < -800) {  // Threshold do dostrojenia
-                uint32_t current_time = xTaskGetTickCount();  // Pobierz aktualny czas w tickach
+            float threshold = 0.6f; 
+
+            if (delta > threshold || delta < -threshold) {
+                uint32_t now = xTaskGetTickCount();
                 
-                // Jeśli tapnięcie wystąpiło w ciągu 1 sekundy od poprzedniego
-                if (tap_count == 1 && (current_time - last_tap_time) <= pdMS_TO_TICKS(500)) {
-                    // Drugie tapnięcie w ciągu 1 sekundy
-                    printf("Detected 2 taps!\n");
-                    gpio_put(LED_PIN, 1);  // Zapal diodę LED1
-                    vTaskDelay(pdMS_TO_TICKS(200));  // Dioda świeci przez 100ms
-                    gpio_put(LED_PIN, 0);  // Wyłącz diodę LED1
-                    tap_count = 0;  // Resetuj licznik po wykryciu dwóch tapnięć
-                } 
-                else if (tap_count == 0) {
-                    // Pierwsze tapnięcie, rozpocznij odliczanie
-                    printf("Detected 1 tap!\n");
-                   gpio_put(LED2_PIN, 1);  // Zapal diodę LED2
-                   vTaskDelay(pdMS_TO_TICKS(200));  // Dioda świeci przez 100ms
-                   gpio_put(LED2_PIN, 0);  // Wyłącz diodę LED2
-                    tap_count = 1;  // Zwiększ licznik tapnięć
-                } 
-                else {
-                    // Resetuj licznik, jeśli nie wykryto drugiego tapnięcia w czasie
+                if (tap_count == 1 && (now - last_tap_time) > pdMS_TO_TICKS(1000)) {
                     tap_count = 0;
                 }
-                
-                last_tap_time = current_time;  // Zaktualizuj czas ostatniego tapnięcia
-            }
 
-            last = z;
+                if (tap_count == 1) {
+                    printf("Double tap!\n");
+                    for (int i = 0; i < 2; i++) {
+                        gpio_put(LED_PIN, 1);
+                        vTaskDelay(pdMS_TO_TICKS(150));
+                        gpio_put(LED_PIN, 0);
+                        vTaskDelay(pdMS_TO_TICKS(150));
+                    }
+                    tap_count = 0;
+                } else {
+                    printf("Single tap\n");
+                    gpio_put(LED2_PIN, 1);
+                    vTaskDelay(pdMS_TO_TICKS(150));
+                    gpio_put(LED2_PIN, 0);
+                    tap_count = 1;
+                    last_tap_time = now;
+                }
+            }
         }
     }
 }
-
 
 
 void i2c_scan() {
