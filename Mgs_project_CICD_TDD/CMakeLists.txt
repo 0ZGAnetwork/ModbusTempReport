@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-include($ENV{pico_sdk_path}/external/pico_sdk_import.cmake)
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 project(Mgs_project_CICD_TDD C CXX ASM)
 pico_sdk_init()
 # program
