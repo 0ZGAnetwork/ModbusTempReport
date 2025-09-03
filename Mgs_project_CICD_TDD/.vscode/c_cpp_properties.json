@@ -11,7 +11,7 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\14.3 rel1\\bin\\arm-none-eabi-gcc.exe",
+            "compilerPath": "C:\\gccarm\\14_3\\bin\\arm-none-eabi-gcc.exe",
             "cStandard": "c11",
             "intelliSenseMode": "gcc-arm",
             "compilerArgs": [
