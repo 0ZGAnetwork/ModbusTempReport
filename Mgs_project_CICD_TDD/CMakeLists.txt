@@ -4,7 +4,7 @@ project(Mgs_project_CICD_TDD C CXX ASM)
 pico_sdk_init()
 # program
 add_executable(Mgs_project_CICD_TDD
-        blink.c
+        scr/blink.c
         )
 target_link_libraries(Mgs_project_CICD_TDD pico_stdlib)
 pico_add_extra_outputs(Mgs_project_CICD_TDD)
