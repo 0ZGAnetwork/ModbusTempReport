@@ -1,4 +1,4 @@
-set(CMAKE_CXX_COMPILER "C:/gccarm/14_3/bin/arm-none-eabi-g++.exe")
+set(CMAKE_CXX_COMPILER "C:/armgcc/bin/arm-none-eabi-g++.exe")
 set(CMAKE_CXX_COMPILER_ARG1 "")
 set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_CXX_COMPILER_VERSION "14.3.1")
@@ -21,15 +21,15 @@ set(CMAKE_CXX_SIMULATE_ID "")
 set(CMAKE_CXX_COMPILER_FRONTEND_VARIANT "GNU")
 set(CMAKE_CXX_COMPILER_APPLE_SYSROOT "")
 set(CMAKE_CXX_SIMULATE_VERSION "")
-set(CMAKE_CXX_COMPILER_ARCHITECTURE_ID "armv6")
+set(CMAKE_CXX_COMPILER_ARCHITECTURE_ID "")
 
 
 
-set(CMAKE_AR "C:/gccarm/14_3/bin/arm-none-eabi-ar.exe")
-set(CMAKE_CXX_COMPILER_AR "C:/gccarm/14_3/bin/arm-none-eabi-gcc-ar.exe")
-set(CMAKE_RANLIB "C:/gccarm/14_3/bin/arm-none-eabi-ranlib.exe")
-set(CMAKE_CXX_COMPILER_RANLIB "C:/gccarm/14_3/bin/arm-none-eabi-gcc-ranlib.exe")
-set(CMAKE_LINKER "C:/gccarm/14_3/bin/arm-none-eabi-ld.exe")
+set(CMAKE_AR "C:/armgcc/bin/arm-none-eabi-ar.exe")
+set(CMAKE_CXX_COMPILER_AR "C:/armgcc/bin/arm-none-eabi-gcc-ar.exe")
+set(CMAKE_RANLIB "C:/armgcc/bin/arm-none-eabi-ranlib.exe")
+set(CMAKE_CXX_COMPILER_RANLIB "C:/armgcc/bin/arm-none-eabi-gcc-ranlib.exe")
+set(CMAKE_LINKER "C:/armgcc/bin/arm-none-eabi-ld.exe")
 set(CMAKE_LINKER_LINK "")
 set(CMAKE_LINKER_LLD "")
 set(CMAKE_CXX_COMPILER_LINKER "NOTFOUND")
@@ -90,9 +90,9 @@ endif()
 
 
 
-set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "C:/gccarm/14_3/arm-none-eabi/include/c++/14.3.1;C:/gccarm/14_3/arm-none-eabi/include/c++/14.3.1/arm-none-eabi/thumb/v6-m/nofp;C:/gccarm/14_3/arm-none-eabi/include/c++/14.3.1/backward;C:/gccarm/14_3/lib/gcc/arm-none-eabi/14.3.1/include;C:/gccarm/14_3/lib/gcc/arm-none-eabi/14.3.1/include-fixed;C:/gccarm/14_3/arm-none-eabi/include")
+set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES "C:/armgcc/arm-none-eabi/include/c++/14.3.1;C:/armgcc/arm-none-eabi/include/c++/14.3.1/arm-none-eabi/thumb/v8-m.main+fp/softfp;C:/armgcc/arm-none-eabi/include/c++/14.3.1/backward;C:/armgcc/lib/gcc/arm-none-eabi/14.3.1/include;C:/armgcc/lib/gcc/arm-none-eabi/14.3.1/include-fixed;C:/armgcc/arm-none-eabi/include")
 set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
-set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "C:/gccarm/14_3/lib/gcc/arm-none-eabi/14.3.1/thumb/v6-m/nofp;C:/gccarm/14_3/arm-none-eabi/lib/thumb/v6-m/nofp;C:/gccarm/14_3/lib/gcc/arm-none-eabi/14.3.1;C:/gccarm/14_3/lib/gcc;C:/gccarm/14_3/arm-none-eabi/lib")
+set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "C:/armgcc/lib/gcc/arm-none-eabi/14.3.1/thumb/v8-m.main+fp/softfp;C:/armgcc/arm-none-eabi/lib/thumb/v8-m.main+fp/softfp;C:/armgcc/lib/gcc/arm-none-eabi/14.3.1;C:/armgcc/lib/gcc;C:/armgcc/arm-none-eabi/lib")
 set(CMAKE_CXX_IMPLICIT_LINK_FRAMEWORK_DIRECTORIES "")
 set(CMAKE_CXX_COMPILER_CLANG_RESOURCE_DIR "")
 
