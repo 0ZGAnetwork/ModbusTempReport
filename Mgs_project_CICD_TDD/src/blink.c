@@ -2,7 +2,7 @@
 #include "pico/stdlib.h"
 int main() {
     const uint GPIO2 = 4; //PICO_DEFAULT_LED_PIN;
-    gpio_init(GPIO2;
+    gpio_init(GPIO2);
     gpio_set_dir(GPIO2, GPIO_OUT);
     stdio_init_all();
     while (true) {
