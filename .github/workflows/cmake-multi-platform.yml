@@ -28,8 +28,8 @@ jobs:
         c_compiler: [gcc, clang] #cl
         include:
           - os: windows-latest
-            c_compiler: gcc
-            cpp_compiler: g++
+            c_compiler: arm-none-eabi-gcc
+            cpp_compiler: arm-none-eabi-g++
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
@@ -65,13 +65,13 @@ jobs:
       shell: powershell
       run: choco install gcc-arm-embedded --version 10.3.1
 
-    - name: Set ARM GCC path
+    - name: Add ARM GCC to PATH
       shell: powershell
-      run: echo "PICO_TOOLCHAIN_PATH=C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin" >> $GITHUB_ENV
+      run: echo "PATH=C:\ProgramData\chocolatey\bin;$env:PATH" >> $GITHUB_ENV
 
-    - name: Show ARM GCC path
+    - name: Set ARM GCC path for CMake
       shell: powershell
-      run: Get-ChildItem "C:\Program Files (x86)\GNU Arm Embedded Toolchain"
+      run: echo "PICO_TOOLCHAIN_PATH=C:\ProgramData\chocolatey\bin" >> $GITHUB_ENV
 
     - name: Install Ninja
       shell: powershell
