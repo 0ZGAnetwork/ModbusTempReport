@@ -61,10 +61,6 @@ jobs:
       shell: powershell
       run: echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
 
-    - name: Setup Visual Studio
-      shell: cmd
-      run: 'call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64'
-
     - name: Configure CMake
       run: cmake -S . -B build
     
