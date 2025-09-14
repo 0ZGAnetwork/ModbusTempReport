@@ -13,6 +13,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Clean build folder
+      run: rm -rf ${{ github.workspace }}/build
+
     - name: Set build directory
       id: strings
       shell: bash
