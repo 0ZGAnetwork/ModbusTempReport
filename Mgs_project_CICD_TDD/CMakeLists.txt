@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # cmake -DPICO_BOARD=pico2 ..
 set(PICO_BOARD pico2)
+set(PICO_ENABLE_USB 1)
 pico_sdk_init()
 
 add_executable(Mgs_project_CICD_TDD
