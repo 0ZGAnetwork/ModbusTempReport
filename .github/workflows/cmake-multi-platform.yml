@@ -58,9 +58,21 @@ jobs:
       run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
     - name: Set PICO_SDK_PATH
-      shell: bash
+      shell: powershell
       run: echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
-      
+
+    - name: Install ARM GCC
+      shell: powershell
+      run: choco install gcc-arm-embedded --version 10.3.1
+
+    - name: Set ARM GCC path
+      shell: powershell
+      run: echo "PICO_TOOLCHAIN_PATH=C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2020-q4-major/bin" >> $GITHUB_ENV
+
+    - name: Install Ninja
+      shell: powershell
+      run: choco install ninja
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
