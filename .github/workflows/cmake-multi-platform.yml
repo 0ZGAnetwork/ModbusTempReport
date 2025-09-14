@@ -21,10 +21,10 @@ jobs:
     - name: Clone Pico SDK
       run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
-    - name: Install dependences (Linux)
+    - name: Install dependencies (Linux)
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang cmake ninja-build
+        sudo apt-get install -y clang cmake ninja-build gcc-arm-none-eabi binutils-arm-none-eabi
         
     - name: set env vars (Linux)
       run: |
@@ -34,8 +34,8 @@ jobs:
     - name: Configure CMake (Linux)
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_C_COMPILER=clang
-        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_C_COMPILER=arm-none-eabi-gcc
+        -DCMAKE_CXX_COMPILER=arm-none-eabi-g++
         -DCMAKE_BUILD_TYPE=Release
         -DPICO_BOARD=pico2
         -G Ninja
