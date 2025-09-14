@@ -7,17 +7,16 @@ set(CMAKE_CXX_STANDARD 17)
 
 # cmake -DPICO_BOARD=pico2 ..
 set(PICO_BOARD pico2)
-set(PICO_ENABLE_USB 1)
 pico_sdk_init()
 
 add_executable(Mgs_project_CICD_TDD
         src/blink.c
         )
-target_link_libraries(Mgs_project_CICD_TDD 
-        pico_stdlib
-        pico_stdio_usb
-        )
-pico_add_extra_outputs(Mgs_project_CICD_TDD)
 
 pico_enable_stdio_usb(Mgs_project_CICD_TDD 1)
 pico_enable_stdio_uart(Mgs_project_CICD_TDD 0)
+
+target_link_libraries(Mgs_project_CICD_TDD 
+        pico_stdlib
+        )
+pico_add_extra_outputs(Mgs_project_CICD_TDD)
