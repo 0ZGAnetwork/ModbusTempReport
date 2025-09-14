@@ -53,11 +53,17 @@ jobs:
       shell: bash
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        
     - name: Clone Pico SDK
       run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
     - name: Set PICO_SDK_PATH
+      shell: powershell
       run: echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
+
+    - name: Setup Visual Studio
+      shell: cmd
+      run: 'call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64'
       
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
