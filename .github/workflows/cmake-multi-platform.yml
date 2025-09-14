@@ -34,8 +34,8 @@ jobs:
     - name: Configure CMake (Linux)
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_C_COMPILER=arm-none-eabi-gcc
-        -DCMAKE_CXX_COMPILER=arm-none-eabi-g++
+        -DCMAKE_C_COMPILER=/usr/bin/arm-none-eabi-gcc
+        -DCMAKE_CXX_COMPILER=/usr/bin/arm-none-eabi-g++
         -DCMAKE_BUILD_TYPE=Release
         -DPICO_BOARD=pico2
         -G Ninja
