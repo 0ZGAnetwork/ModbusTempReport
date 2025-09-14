@@ -65,15 +65,11 @@ jobs:
       shell: cmd
       run: 'call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64'
 
-    - name: Check for vcvarsall.bat
-      run: |
-        if not exist "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" (
-          echo "Visual Studio not found!"
-          exit 1
-        )
-    
     - name: Set up MSBuild
       uses: microsoft/setup-msbuild@v2
+    
+    - name: Build with MSBuild
+      run: msbuild path/to/your/project.sln /p:Configuration=Release
       
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
