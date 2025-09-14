@@ -62,7 +62,7 @@ jobs:
       run: echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
 
     - name: Configure CMake
-      run: cmake -S . -B build
+      run: cmake -S ${{github.workspace }}/Mgs_project_CICD_TDD -B build
     
     - name: Build
       run: cmake --build build
