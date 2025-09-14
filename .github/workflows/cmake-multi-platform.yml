@@ -8,29 +8,12 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
-        c_compiler: [gcc, clang, arm-none-eabi-gcc]
-        include:
-          - os: windows-latest
-            c_compiler: arm-none-eabi-gcc
-            cpp_compiler: arm-none-eabi-g++
-          - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
-          - os: ubuntu-latest
-            c_compiler: clang
-            cpp_compiler: clang++
+    runs-on: ubuntu-latest #${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set reusable strings
+    - name: Set build directory
       id: strings
       shell: bash
       run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
@@ -38,52 +21,32 @@ jobs:
     - name: Clone Pico SDK
       run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
-    - name: Set PICO_SDK_PATH
-      shell: bash
-      run: echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
-
-    # Windows only: install ARM GCC + Ninja
-    - name: Install ARM GCC
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: choco install gcc-arm-embedded --version 10.3.1
-
-    - name: Install Ninja
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: choco install ninja
-
-    - name: Add choco bin to PATH
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: echo "PATH=C:\ProgramData\chocolatey\bin;$env:PATH" >> $GITHUB_ENV
-
+    - name: Install dependences (Linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang cmake ninja-build
+        
+    - name: set env vars (Linux)
+      run: |
+        echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
+        echo "PICO_TOOLCHAIN_PATH=/usr/bin/" >> $GITHUB_ENV
+      
     - name: Configure CMake (Linux)
-      if: runner.os == 'Linux'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DPICO_BOARD=pico2
-        -G Ninja
-        -S ${{ github.workspace }}/Mgs_project_CICD_TDD
-
-    - name: Configure CMake (Windows ARM)
-      if: runner.os == 'Windows'
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_BUILD_TYPE=Release
         -DPICO_BOARD=pico2
         -G Ninja
         -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
     - name: Build
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} #--config ${{ matrix.build_type }}
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      run: ctest --build-config ${{ matrix.build_type }}
+      run: ctest -C Release #--build-config ${{ matrix.build_type }}
 
     - name: Upload firmware
       uses: actions/upload-artifact@v4
