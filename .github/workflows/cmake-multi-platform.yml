@@ -25,7 +25,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         build_type: [Release]
-        c_compiler: [gcc, clang] #cl
+        #c_compiler: [gcc, clang]
         include:
           - os: windows-latest
             c_compiler: arm-none-eabi-gcc
@@ -56,30 +56,38 @@ jobs:
         
     - name: Clone Pico SDK
       run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
-
-    - name: Set PICO_SDK_PATH
-      shell: powershell
-      run: echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
-
-    - name: Install ARM GCC
+    # --- Linux setup ---
+    - name: Install dependeces Linux
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi ninja-build cmake
+      
+    - name: Set env vars (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
+        echo "PICO_TOOLCHAIN_PATH=/usr/bin" >> $GITHUB_ENV
+    
+    # --- Windows setup ---
+    - name: Install ARM GCC (Windows)
+      if: runner.os == 'Windows'
       shell: powershell
       run: choco install gcc-arm-embedded --version 10.3.1
 
-    - name: Add ARM GCC to PATH
-      shell: powershell
-      run: echo "PATH=C:\ProgramData\chocolatey\bin;$env:PATH" >> $GITHUB_ENV
-
-    - name: Set ARM GCC path for CMake
-      shell: powershell
-      run: echo "PICO_TOOLCHAIN_PATH=C:\ProgramData\chocolatey\bin" >> $GITHUB_ENV
-
-    - name: Install Ninja
+    - name: Install Ninja (Windows)
+      if: runner.os == 'Windows'
       shell: powershell
       run: choco install ninja
 
-    - name: Add Ninja to PATH
+    - name: Set env vars (Windows)
+      if: runner.os == 'Windows'
       shell: powershell
-      run: echo "PATH=C:\ProgramData\chocolatey\bin;$env:PATH" >> $GITHUB_ENV
+      run: |
+        echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $env:GITHUB_ENV
+        echo "PICO_TOOLCHAIN_PATH=C:\ProgramData\chocolatey\bin" >> $env:GITHUB_ENV
+      
+    # --- Common build step ---
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
