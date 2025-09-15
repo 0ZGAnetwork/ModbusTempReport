@@ -24,7 +24,7 @@ jobs:
     - name: Clean build folder (Windows)
       if: matrix.os == 'windows-latest'
       shell: pwsh
-      run: Remove-Item -Recurse -Force ${{ github.workspace }}\build -ErrorAction SilentlyCOntinue
+      run: Remove-Item -Recurse -Force ${{ github.workspace }}\build -ErrorAction SilentlyContinue
       
     - name: Set build directory
       id: strings
