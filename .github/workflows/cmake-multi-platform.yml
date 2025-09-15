@@ -3,8 +3,12 @@ name: CMake on multiple platforms
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - 'Mgs_project_CICD_TDD/**'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - 'Mgs_project_CICD_TDD/**'
 
 jobs:
   build:
