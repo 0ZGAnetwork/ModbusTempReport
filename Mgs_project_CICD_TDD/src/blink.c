@@ -8,7 +8,7 @@ int main() {
     while (true) {
         gpio_put(GPIO2, 1);
         sleep_ms(250);
-        printf("Blinking\r\n");
+        printf("Blink\r\n");
         gpio_put(GPIO2, 0);
         sleep_ms(250);
         printf("OFF\r\n");
