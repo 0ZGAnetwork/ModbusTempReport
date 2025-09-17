@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(PICO_BOARD pico2)
 pico_sdk_init()
 
+# --- Application ---
 add_executable(Mgs_project_CICD_TDD
         src/blink.c
         )
@@ -20,3 +21,12 @@ target_link_libraries(Mgs_project_CICD_TDD
         pico_stdlib
         )
 pico_add_extra_outputs(Mgs_project_CICD_TDD)
+
+# --- Testing ---
+enable_testing()
+
+add_executable(unit_test test/unit_test.c)
+add_test( NAME unit_test COMMAND unit_test)
+
+add_executable(integration_test test/integration_test.c)
+add_test( NAME integration_test COMMAND integration_test)
