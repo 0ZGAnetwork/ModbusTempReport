@@ -96,7 +96,7 @@ jobs:
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_BUILD_TYPE=Release
           -DPICO_BOARD=pico2
-          -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc
+          -DCMAKE_OBJDUMP=arm-none-eabi-objdump
           -G Ninja
           -S ${{ github.workspace }}/Mgs_project_CICD_TDD
   
@@ -105,7 +105,7 @@ jobs:
         run: cmake -B ${{ steps.strings.outputs.build-output-dir }} `
           -DCMAKE_BUILD_TYPE=Release `
           -DPICO_BOARD=pico2 `
-          -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc `
+          -DCMAKE_OBJDUMP=arm-none-eabi-objdump `
           -G Ninja `
           -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
