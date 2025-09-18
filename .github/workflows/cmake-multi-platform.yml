@@ -90,24 +90,27 @@ jobs:
 
       # --- Build Firmware ---
       # --- Common Configuration ---
-      - name: Configure CMake (Linux)
+      - name: Configure CMake (Linux firmware)
         if: matrix.os == 'ubuntu-latest'
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_BUILD_TYPE=Release
-          -DPICO_BOARD=pico2
-          -DCMAKE_C_COMPILER=arm-none-eabi-gcc \
-          -DCMAKE_CXX_COMPILER=arm-none-eabi-g++ \
-          -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc \
-          -DCMAKE_OBJDUMP=arm-none-eabi-objdump \
-          -G Ninja
-          -S ${{ github.workspace }}/Mgs_project_CICD_TDD
+        run: |
+          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPICO_BOARD=pico2 \
+            -DHOST_BUILD=OFF \
+            -DCMAKE_C_COMPILER=arm-none-eabi-gcc \
+            -DCMAKE_CXX_COMPILER=arm-none-eabi-g++ \
+            -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc \
+            -DCMAKE_OBJDUMP=arm-none-eabi-objdump \
+            -G Ninja \
+            -S ${{ github.workspace }}/Mgs_project_CICD_TDD
+
   
       - name: Configure CMake (Windows)
         if: matrix.os == 'windows-latest'
         run: cmake -B ${{ steps.strings.outputs.build-output-dir }} `
           -DCMAKE_BUILD_TYPE=Release `
           -DPICO_BOARD=pico2 `
+          -DHOST_BUILD=OFF `
           -DCMAKE_C_COMPILER=arm-none-eabi-gcc `
           -DCMAKE_CXX_COMPILER=arm-none-eabi-g++ `
           -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc `
