@@ -22,13 +22,13 @@ jobs:
           sudo apt-get install -y cmake ninja-build gcc g++
 
       - name: Configure CMake (host build)
-        run: cmake -B build -DHOST_BUILD=ON -G Ninja -S Mgs_project_CICD_TDD
+        run: cmake -B build-host -DHOST_BUILD=ON -G Ninja -S Mgs_project_CICD_TDD
 
       - name: Build tests
-        run: cmake --build build
+        run: cmake --build build-host
 
       - name: Run tests
-        working-directory: build
+        working-directory: build-host
         run: ctest -V
 
   build:
@@ -44,17 +44,17 @@ jobs:
 
       - name: Clean build folder (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: rm -rf ${{ github.workspace }}/build
+        run: rm -rf ${{ github.workspace }}/build-target
 
       - name: Clean build folder (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
-        run: Remove-Item -Recurse -Force ${{ github.workspace }}\build -ErrorAction SilentlyContinue
+        run: Remove-Item -Recurse -Force ${{ github.workspace }}\build-target -ErrorAction SilentlyContinue
       
       - name: Set build directory
         id: strings
         shell: bash
-        run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+        run: echo "build-output-dir=${{ github.workspace }}/build-target" >> "$GITHUB_OUTPUT"
 
       - name: Clone Pico SDK
         run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
