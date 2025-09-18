@@ -14,4 +14,4 @@ int main() {
         printf("OFF\r\n");
     }
 }
-// only works with C11 standard!
+// only works with C11 standard!!
