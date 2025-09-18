@@ -25,10 +25,12 @@ if(NOT HOST_BUILD)
 endif()
 
 # --- Local Testing (Host) ---
-enable_testing()
+if(HOST_BUILD)
+        enable_testing()
 
-add_executable(unit_test test/unit_test.c)
-add_test( NAME unit_test COMMAND unit_test)
+        add_executable(unit_test test/unit_test.c)
+        add_test( NAME unit_test COMMAND unit_test)
 
-add_executable(integration_test test/integration_test.c)
-add_test( NAME integration_test COMMAND integration_test)
+        add_executable(integration_test test/integration_test.c)
+        add_test( NAME integration_test COMMAND integration_test)
+endif()
