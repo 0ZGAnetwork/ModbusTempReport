@@ -4,3 +4,4 @@ build/
 *.bin
 *.map
 *.uf2
+.vscode/
