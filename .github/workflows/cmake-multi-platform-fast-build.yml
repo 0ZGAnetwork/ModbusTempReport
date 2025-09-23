@@ -33,7 +33,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build libusb-1.0-0-dev wget tar
-          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
+          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
           tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
           sudo mv arm-gnu-toolchain-14.3.rel1 /opt/arm-gnu-toolchain
           echo "/opt/arm-gnu-toolchain/bin" >> $GITHUB_PATH
