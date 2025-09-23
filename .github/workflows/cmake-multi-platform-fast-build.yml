@@ -1,4 +1,4 @@
-name: CMake on multiple platforms - fast test
+name: CMake on Linux - Pico
 
 on:
   push:
@@ -12,63 +12,34 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clean build folder (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Clean build folder
         run: rm -rf ${{ github.workspace }}/build-target
-      
-      - name: Clean build folder (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: Remove-Item -Recurse -Force ${{ github.workspace }}\build-target -ErrorAction SilentlyContinue
 
       - name: Set build directory
         id: strings
         shell: bash
         run: echo "build-output-dir=${{ github.workspace }}/build-target" >> "$GITHUB_OUTPUT"
 
-      # --- Clone Pico SDK ---
       - name: Clone Pico SDK
         run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
-      # --- Linux firmware dependencies ---
       - name: Install firmware dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build libusb-1.0-0-dev wget tar
-          # Pobierz stabilny GCC 10.3 ARM Embedded od ARM
-          wget https://developer.arm.com/-/media/Files/downloads/gnu/10.3-2021.07/binrel/arm-gnu-toolchain-10.3.rel1-x86_64-arm-none-eabi.tar.xz
-          tar -xf arm-gnu-toolchain-10.3.rel1-x86_64-arm-none-eabi.tar.xz
-          echo "PICO_TOOLCHAIN_PATH=${{ github.workspace }}/arm-gnu-toolchain-10.3.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_ENV
+          # Download GCC 10.3-2021.07 arm-none-eabi toolchain
+          wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz
+          tar -xf gcc-arm-10.3-2021.07-x86_64-arm-none-eabi.tar.xz
+          echo "PICO_TOOLCHAIN_PATH=${{ github.workspace }}/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi/bin" >> $GITHUB_ENV
           echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
 
-
-      # --- Windows firmware dependencies ---
-      - name: Install firmware dependencies (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          choco install cmake ninja -y
-          # Pobierz stabilny GCC 10.3 ARM Embedded od ARM
-          Invoke-WebRequest -Uri "https://developer.arm.com/-/media/Files/downloads/gnu/10.3-2021.07/binrel/arm-gnu-toolchain-10.3.rel1-win32-arm-none-eabi.zip" -OutFile "$env:GITHUB_WORKSPACE\arm-toolchain.zip"
-          Expand-Archive -LiteralPath "$env:GITHUB_WORKSPACE\arm-toolchain.zip" -DestinationPath "$env:GITHUB_WORKSPACE\arm-gnu-toolchain"
-          $gccDir = "$env:GITHUB_WORKSPACE\arm-gnu-toolchain\arm-gnu-toolchain-10.3.rel1-win32-arm-none-eabi\bin"
-          echo "PICO_TOOLCHAIN_PATH=$gccDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "PICO_SDK_PATH=${{ github.workspace }}\pico-sdk" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-
-      # --- Configure CMake ---
-      - name: Configure CMake (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Configure CMake
         run: |
           cmake -B ${{ steps.strings.outputs.build-output-dir }} \
             -DCMAKE_BUILD_TYPE=Release \
@@ -81,28 +52,11 @@ jobs:
             -G Ninja \
             -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
-      - name: Configure CMake (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} `
-            -DCMAKE_BUILD_TYPE=Release `
-            -DPICO_BOARD=pico2 `
-            -DHOST_BUILD=OFF `
-            -DCMAKE_C_COMPILER=$env:PICO_TOOLCHAIN_PATH\arm-none-eabi-gcc `
-            -DCMAKE_CXX_COMPILER=$env:PICO_TOOLCHAIN_PATH\arm-none-eabi-g++ `
-            -DCMAKE_ASM_COMPILER=$env:PICO_TOOLCHAIN_PATH\arm-none-eabi-gcc `
-            -DCMAKE_OBJDUMP=$env:PICO_TOOLCHAIN_PATH\arm-none-eabi-objdump `
-            -G Ninja `
-            -S ${{ github.workspace }}\Mgs_project_CICD_TDD
-
-      # --- Build ---
       - name: Build firmware
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
 
-      # --- Upload firmware ---
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: pico2-firmware-${{ matrix.os }}
+          name: pico2-firmware-linux
           path: ${{ steps.strings.outputs.build-output-dir }}/*.uf2
