@@ -14,3 +14,6 @@ target_link_libraries(Modbus_example
     hardware_uart
 )
 pico_add_extra_outputs(Modbus_example)
+
+enable_stdio_usb(Modbus_example 1)
+enable_stdio_uart(Modbus_example 0)
