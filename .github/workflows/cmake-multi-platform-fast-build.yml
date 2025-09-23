@@ -21,13 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clean build folder
-        run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            rm -rf ${{ github.workspace }}/build-target
-          else
-            pwsh -Command "Remove-Item -Recurse -Force ${{ github.workspace }}\build-target -ErrorAction SilentlyContinue"
-          fi
+      - name: Clean build folder (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: rm -rf ${{ github.workspace }}/build-target
+      
+      - name: Clean build folder (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: Remove-Item -Recurse -Force ${{ github.workspace }}\build-target -ErrorAction SilentlyContinue
+
 
       - name: Set build directory
         id: strings
