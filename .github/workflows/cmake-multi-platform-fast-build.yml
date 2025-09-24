@@ -28,14 +28,6 @@ jobs:
         shell: bash
         run: echo "build-output-dir=${{ github.workspace }}/build-target" >> "$GITHUB_OUTPUT"
 
-      - name: Clone Pico SDK (backup, jeśli submodule nie zadziała)
-        run: |
-          if [ ! -d ${{ github.workspace }}/pico-sdk ]; then
-            git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
-            cd ${{ github.workspace }}/pico-sdk
-            git submodule update --init --recursive
-          fi
-
       - name: Install firmware dependencies (Linux)
         run: |
           sudo apt-get update
