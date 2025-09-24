@@ -39,6 +39,7 @@ jobs:
           echo "/opt/arm-gnu-toolchain/bin" >> $GITHUB_PATH
           echo "PICO_TOOLCHAIN_PATH=/opt/arm-gnu-toolchain/bin" >> $GITHUB_ENV
           echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
+          export PATH=/opt/arm-gnu-toolchain/bin:$PATH
 
       - name: check Ninja Version
         run: ninja --version
