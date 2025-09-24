@@ -1,4 +1,4 @@
-name: CMake on Linux - Pico
+name: CMake on multiple platforms
 
 on:
   push:
@@ -9,16 +9,27 @@ on:
     branches: [ "experimental/modbus" ]
     paths:
       - 'modbus/**'
+
 jobs:
   build:
-    runs-on: ubuntu-latest #${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest,windows-latest]
+    runs-on:  ${{ matrix.os }}
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Clean build folder
+    - name: Clean build folder (Linux)
+      if: matrix.os =='ubuntu-latest'
       run: rm -rf ${{ github.workspace }}/build
 
+    - name: Clean build folder (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: Remove-Item -Recurse -Force ${{ github.workspace }}\build -ErrorAction SilentlyContinue
+      
     - name: Set build directory
       id: strings
       shell: bash
@@ -27,23 +38,49 @@ jobs:
     - name: Clone Pico SDK
       run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
+    # --- Linux ---
     - name: Install dependencies (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y clang cmake ninja-build gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0-0-dev
         
     - name: set env vars (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
         echo "PICO_TOOLCHAIN_PATH=/usr/bin/" >> $GITHUB_ENV
-      
+    # --- Windows ---
+    - name: Install dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        choco install cmake ninja -y
+        choco install gcc-arm-embedded -y
+    - name: Set PICO_TOOLCHAIN_PATH (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: |
+        $gccPath = (Get-Command arm-none-eabi-gcc).Source
+        $gccDir = Split-Path $gccPath
+        echo "PICO_TOOLCHAIN_PATH=$gccDir" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "PICO_SDK_PATH=${{ github.workspace }}\pico-sdk" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+    # --- Common Configuration ---
     - name: Configure CMake (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_BUILD_TYPE=Release
         -DPICO_BOARD=pico2
         -G Ninja
         -S ${{ github.workspace }}/Mgs_project_CICD_TDD
+    - name: Configure CMake (Windows)
+      if: matrix.os == 'windows-latest'
+      run: cmake -B ${{ steps.strings.outputs.build-output-dir }} `
+        -DCMAKE_BUILD_TYPE=Release `
+        -DPICO_BOARD=pico2 `
+        -G Ninja `
+        -S ${{ github.workspace }}/Mgs_project_CICD_TDD
+
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} #--config ${{ matrix.build_type }}
 
@@ -54,5 +91,21 @@ jobs:
     - name: Upload firmware
       uses: actions/upload-artifact@v4
       with:
-        name: pico2-firmware
+        name: pico2-firmware-${{ matrix.os }}
         path: ${{ steps.strings.outputs.build-output-dir }}/*.uf2
+        
+  deploy-windows:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download firmware artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pico2-firmware-windows-latest 
+
+      - name: Flash Pico
+        run: |
+          copy *.uf2 D:\
