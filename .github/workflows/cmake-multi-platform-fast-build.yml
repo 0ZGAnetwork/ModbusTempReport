@@ -34,11 +34,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build libusb-1.0-0-dev wget tar
           wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
-          tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
-          sudo mv arm-gnu-toolchain-14.3.rel1 /opt/arm-gnu-toolchain
+          sudo mkdir -p /opt/arm-gnu-toolchain
+          sudo tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz -C /opt/arm-gnu-toolchain --strip-components=1
           echo "/opt/arm-gnu-toolchain/bin" >> $GITHUB_PATH
           echo "PICO_TOOLCHAIN_PATH=/opt/arm-gnu-toolchain/bin" >> $GITHUB_ENV
           echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
+
 
       - name: Configure CMake
         run: |
