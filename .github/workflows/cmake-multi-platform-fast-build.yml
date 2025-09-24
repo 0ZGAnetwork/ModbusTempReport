@@ -1,4 +1,4 @@
-name: CMake on Linux - Pico
+name: CMake on Linux - Pico (Bare-metal ASM test)
 
 on:
   push:
@@ -16,22 +16,29 @@ jobs:
     timeout-minutes: 20
 
     steps:
+      # 1. Checkout repo i submoduły projektu (jeśli są)
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
+      # 2. Clean build folder
       - name: Clean build folder
         run: rm -rf ${{ github.workspace }}/build-target
 
+      # 3. Set build directory
       - name: Set build directory
         id: strings
         shell: bash
         run: echo "build-output-dir=${{ github.workspace }}/build-target" >> "$GITHUB_OUTPUT"
 
+      # 4. Clone Pico SDK (z submodułami jeśli SDK używa)
       - name: Clone Pico SDK
         run: |
           git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
           cd ${{ github.workspace }}/pico-sdk
           git submodule update --init --recursive
 
+      # 5. Install toolchain i zależności
       - name: Install firmware dependencies (Linux)
         run: |
           sudo apt-get update
@@ -44,9 +51,7 @@ jobs:
           echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
           export PATH=/opt/arm-gnu-toolchain/bin:$PATH
 
-      - name: Check Ninja Version
-        run: ninja --version
-
+      # 6. Debug paths i sprawdzenie co jest w SDK
       - name: Debug SDK and Toolchain paths
         run: |
           echo "PICO_SDK_PATH=$PICO_SDK_PATH"
@@ -54,28 +59,14 @@ jobs:
           echo "PATH=$PATH"
           which arm-none-eabi-gcc
           arm-none-eabi-gcc --version
-          ls -la $PICO_SDK_PATH/src/rp2_common/pico_base/include/pico
-          ls -la $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude
+          echo "List generated headers (pico_base):"
+          find $PICO_SDK_PATH -name "pico_base" -type d
+          echo "Check asm includes:"
+          find $PICO_SDK_PATH -name "asm_helper.S"
 
-      - name: Test ASM compile
-        run: |
-          echo "Testing ASM compile:"
-          ${PICO_TOOLCHAIN_PATH}/arm-none-eabi-gcc \
-            -x assembler-with-cpp \
-            -I $PICO_SDK_PATH/src/rp2_common/pico_base/include \
-            -I $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude \
-            -c $PICO_SDK_PATH/src/rp2350/boot_stage2/boot2_w25q080.S \
-            -o test.o
-          if [ $? -eq 0 ]; then
-            echo "ASM compile succeeded!"
-          else
-            echo "ASM compile failed"
-            exit 1
-          fi
-
+      # 7. Configure CMake (generuje potrzebne nagłówki)
       - name: Configure CMake
         run: |
-          PICO_SDK_PATH=${{ github.workspace }}/pico-sdk
           cmake -B ${{ steps.strings.outputs.build-output-dir }} \
             -DPICO_SDK_PATH=$PICO_SDK_PATH \
             -DCMAKE_BUILD_TYPE=Release \
@@ -87,9 +78,28 @@ jobs:
             -G Ninja \
             -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
+      # 8. Test ASM compile dla mikroprocesora (bare-metal)
+      - name: Test ASM compile on ARM
+        run: |
+          echo "Testing ASM compile for bare-metal:"
+          ${PICO_TOOLCHAIN_PATH}/arm-none-eabi-gcc \
+            -x assembler-with-cpp \
+            -I ${{ steps.strings.outputs.build-output-dir }}/generated/pico_base \
+            -I $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude \
+            -c $PICO_SDK_PATH/src/rp2350/boot_stage2/boot2_w25q080.S \
+            -o test.o
+          if [ $? -eq 0 ]; then
+            echo "ASM compile succeeded!"
+          else
+            echo "ASM compile failed"
+            exit 1
+          fi
+
+      # 9. Build firmware
       - name: Build firmware
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
 
+      # 10. Upload firmware
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
