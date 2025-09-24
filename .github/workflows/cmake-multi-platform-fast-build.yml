@@ -47,10 +47,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DPICO_BOARD=pico2 \
             -DHOST_BUILD=OFF \
-            -DCMAKE_C_COMPILER=$PICO_TOOLCHAIN_PATH/arm-none-eabi-gcc \
-            -DCMAKE_CXX_COMPILER=$PICO_TOOLCHAIN_PATH/arm-none-eabi-g++ \
-            -DCMAKE_ASM_COMPILER=$PICO_TOOLCHAIN_PATH/arm-none-eabi-gcc \
-            -DCMAKE_OBJDUMP=$PICO_TOOLCHAIN_PATH/arm-none-eabi-objdump \
+            -DCMAKE_TOOLCHAIN_FILE=$PICO_SDK_PATH/pico_sdk_import.cmake \
             -G Ninja \
             -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
