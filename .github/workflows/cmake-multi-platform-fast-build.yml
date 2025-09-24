@@ -41,24 +41,38 @@ jobs:
           echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
           export PATH=/opt/arm-gnu-toolchain/bin:$PATH
 
-      - name: Debug Toolchain and Paths
+      - name: Check Ninja Version
+        run: ninja --version
+
+      - name: Debug SDK and Toolchain paths
         run: |
           echo "PICO_SDK_PATH=$PICO_SDK_PATH"
           echo "PICO_TOOLCHAIN_PATH=$PICO_TOOLCHAIN_PATH"
           echo "PATH=$PATH"
+          which arm-none-eabi-gcc
           arm-none-eabi-gcc --version
-          ls -la $PICO_SDK_PATH
+          ls -la $PICO_SDK_PATH/src/rp2_common/pico_base/include/pico
+          ls -la $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude
 
-      - name: Debug ASM compiler
+      - name: Test ASM compile
         run: |
           echo "Testing ASM compile:"
-          ${PICO_TOOLCHAIN_PATH}/arm-none-eabi-gcc -x assembler-with-cpp -c $PICO_SDK_PATH/src/rp2350/boot_stage2/boot2_w25q080.S -o test.o || echo "ASM compile failed"
-
-      - name: Check Ninja Version
-        run: ninja --version
+          ${PICO_TOOLCHAIN_PATH}/arm-none-eabi-gcc \
+            -x assembler-with-cpp \
+            -I $PICO_SDK_PATH/src/rp2_common/pico_base/include \
+            -I $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude \
+            -c $PICO_SDK_PATH/src/rp2350/boot_stage2/boot2_w25q080.S \
+            -o test.o
+          if [ $? -eq 0 ]; then
+            echo "ASM compile succeeded!"
+          else
+            echo "ASM compile failed"
+            exit 1
+          fi
 
       - name: Configure CMake
         run: |
+          PICO_SDK_PATH=${{ github.workspace }}/pico-sdk
           cmake -B ${{ steps.strings.outputs.build-output-dir }} \
             -DPICO_SDK_PATH=$PICO_SDK_PATH \
             -DCMAKE_BUILD_TYPE=Release \
@@ -67,7 +81,6 @@ jobs:
             -DCMAKE_C_COMPILER=arm-none-eabi-gcc \
             -DCMAKE_CXX_COMPILER=arm-none-eabi-g++ \
             -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc \
-            -DCMAKE_ASM_FLAGS="-x assembler-with-cpp" \
             -G Ninja \
             -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
