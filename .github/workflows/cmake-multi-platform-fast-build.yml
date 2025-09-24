@@ -54,6 +54,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DPICO_BOARD=pico2 \
             -DHOST_BUILD=OFF \
+            -DCMAKE_C_COMPILER=arm-none-eabi-gcc \
+            -DCMAKE_CXX_COMPILER=arm-none-eabi-g++ \
+            -DCMAKE_ASM_COMPILER=arm-none-eabi-gcc \
             -G Ninja \
             -S ${{ github.workspace }}/Mgs_project_CICD_TDD
 
