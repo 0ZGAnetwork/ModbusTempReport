@@ -51,6 +51,7 @@ jobs:
         run: |
           PICO_SDK_PATH=${{ github.workspace }}/pico-sdk
           cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+            -DPICO_SDK_PATH=$PICO_SDK_PATH \
             -DCMAKE_BUILD_TYPE=Release \
             -DPICO_BOARD=pico2 \
             -DHOST_BUILD=OFF \
