@@ -2,7 +2,7 @@
 #include <hardware/uart.h>
 #include <stdio.h>
 
-// test for modbus project.
+// test for modbus project..
 int main() {
     const uint GPIO2 = 2;
     gpio_init(GPIO2);
