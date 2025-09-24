@@ -40,9 +40,15 @@ jobs:
           echo "PICO_TOOLCHAIN_PATH=/opt/arm-gnu-toolchain/bin" >> $GITHUB_ENV
           echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
 
+      - name: check Ninja Version
+        run: ninja --version
 
+      - name: Debug SDK path
+        run: ls -la $PICO_SDK_PATH
+        
       - name: Configure CMake
         run: |
+          PICO_SDK_PATH=${{ github.workspace }}/pico-sdk
           cmake -B ${{ steps.strings.outputs.build-output-dir }} \
             -DCMAKE_BUILD_TYPE=Release \
             -DPICO_BOARD=pico2 \
