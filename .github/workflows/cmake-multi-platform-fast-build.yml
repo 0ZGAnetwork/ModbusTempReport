@@ -9,84 +9,50 @@ on:
     branches: [ "experimental/modbus" ]
     paths:
       - 'modbus/**'
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-latest #${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+    - uses: actions/checkout@v4
 
-      - name: Clean build folder
-        run: rm -rf ${{ github.workspace }}/build-target
+    - name: Clean build folder
+      run: rm -rf ${{ github.workspace }}/build
 
-      - name: Set build directory
-        id: strings
-        shell: bash
-        run: echo "build-output-dir=${{ github.workspace }}/build-target" >> "$GITHUB_OUTPUT"
+    - name: Set build directory
+      id: strings
+      shell: bash
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Install firmware dependencies (Linux)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build libusb-1.0-0-dev wget tar
-          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
-          sudo mkdir -p /opt/arm-gnu-toolchain
-          sudo tar -xvf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz -C /opt/arm-gnu-toolchain --strip-components=1
-          echo "/opt/arm-gnu-toolchain/bin" >> $GITHUB_PATH
-          echo "PICO_TOOLCHAIN_PATH=/opt/arm-gnu-toolchain/bin" >> $GITHUB_ENV
-          echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
-          export PATH=/opt/arm-gnu-toolchain/bin:$PATH
+    - name: Clone Pico SDK
+      run: git clone -b master https://github.com/raspberrypi/pico-sdk.git ${{ github.workspace }}/pico-sdk
 
-      - name: Check Ninja Version
-        run: ninja --version
+    - name: Install dependencies (Linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang cmake ninja-build gcc-arm-none-eabi binutils-arm-none-eabi libusb-1.0-0-dev
+        
+    - name: set env vars (Linux)
+      run: |
+        echo "PICO_SDK_PATH=${{ github.workspace }}/pico-sdk" >> $GITHUB_ENV
+        echo "PICO_TOOLCHAIN_PATH=/usr/bin/" >> $GITHUB_ENV
+      
+    - name: Configure CMake (Linux)
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=Release
+        -DPICO_BOARD=pico2
+        -G Ninja
+        -S ${{ github.workspace }}/Mgs_project_CICD_TDD
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} #--config ${{ matrix.build_type }}
 
-      - name: Debug SDK and Toolchain paths
-        run: |
-          echo "PICO_SDK_PATH=$PICO_SDK_PATH"
-          echo "PICO_TOOLCHAIN_PATH=$PICO_TOOLCHAIN_PATH"
-          echo "PATH=$PATH"
-          which arm-none-eabi-gcc
-          arm-none-eabi-gcc --version
-          echo "List generated headers (pico_base):"
-          ls -la $PICO_SDK_PATH/src/rp2_common/pico_base/include/pico || echo "pico_base headers missing"
-          echo "Check asm includes:"
-          ls -la $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude || echo "asm includes missing"
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ctest -C Release #--build-config ${{ matrix.build_type }}
 
-      - name: Test ASM compile
-        run: |
-          echo "Testing ASM compile:"
-          ${PICO_TOOLCHAIN_PATH}/arm-none-eabi-gcc \
-            -x assembler-with-cpp \
-            -I $PICO_SDK_PATH/src/rp2_common/pico_base/include \
-            -I $PICO_SDK_PATH/src/rp2350/boot_stage2/asminclude \
-            -c $PICO_SDK_PATH/src/rp2350/boot_stage2/boot2_w25q080.S \
-            -o test.o
-          if [ $? -eq 0 ]; then
-            echo "ASM compile succeeded!"
-          else
-            echo "ASM compile failed"
-            exit 1
-          fi
-
-      - name: Configure CMake (bare-metal RP2350)
-        run: |
-          PICO_SDK_PATH=${{ github.workspace }}/pico-sdk
-          cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-            -DPICO_SDK_PATH=$PICO_SDK_PATH \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DPICO_BOARD=pico2 \
-            -DCMAKE_TOOLCHAIN_FILE=$PICO_SDK_PATH/cmake/toolchain/gcc-arm-none-eabi.cmake \
-            -G Ninja \
-            -S ${{ github.workspace }}/Mgs_project_CICD_TDD
-
-      - name: Build firmware
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }}
-
-      - name: Upload firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: pico2-firmware-linux
-          path: ${{ steps.strings.outputs.build-output-dir }}/*.uf2
+    - name: Upload firmware
+      uses: actions/upload-artifact@v4
+      with:
+        name: pico2-firmware
+        path: ${{ steps.strings.outputs.build-output-dir }}/*.uf2
