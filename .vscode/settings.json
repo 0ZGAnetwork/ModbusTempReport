@@ -3,5 +3,6 @@
         "task.h": "c",
         "driver_control.h": "c"
     },
-    "cmake.sourceDirectory": "C:/Users/kanal/Desktop/M_Etap_I/EmR/modbus"
+    "cmake.sourceDirectory": "C:/Users/kanal/Desktop/M_Etap_I/EmR/modbus",
+    "C_Cpp.dimInactiveRegions": false
 }
