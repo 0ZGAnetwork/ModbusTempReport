@@ -7,6 +7,6 @@ typedef struct {
     float sv;
     int config;
     int alarm;
-} sdc35status;
+} SDC35Status;
 
 #endif

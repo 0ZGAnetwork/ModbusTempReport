@@ -1,20 +1,45 @@
-#include <pico/stdlib.h>
-#include <hardware/uart.h>
-#include <stdio.h>
+#include "driver.h"
 
-// test for modbus project............
-int main() {
-    const uint GPIO2 = 2;
-    gpio_init(GPIO2);
-    gpio_set_dir(GPIO2, GPIO_OUT);
-    stdio_init_all();
-    while (true) {
-        gpio_put(GPIO2, 1);
-        sleep_ms(250);
-        printf("Modbus file test: Blink\r\n");
-        gpio_put(GPIO2, 0);
-        sleep_ms(250);
-        printf("Modbus file test: OFF\r\n");
-    }
+int read_modbus_register(int slave_addr, int reg_addr, int *value) {
+    // Implementation of reading a Modbus register
+    unsigned char frame[8];
+    unsigned char response[16];
+    int len;
+
+    frame[0] = (unsigned char)slave_addr;
+    frame[1] = 0x03;               // Read Holding Register
+    frame[2] = (reg_addr >> 8) & 0xFF;
+    frame[3] = reg_addr & 0xFF;
+    frame[4] = 0x00;               // HIGH byte of number of registers to read
+    frame[5] = 0x01;
+
+    unsigned short crc = crc16_modbus(frame, 6);
+    frame[6] = crc & 0xFF;
+    frame[7] = (crc >> 8) & 0xFF;
+
+    uart_send(frame, 8);
+    len = uart_receive(response, sizeof(response));
+    if (len < 7) return -1;
+
+    unsigned short crc_resp = crc16_modbus(response, len - 2);
+    unsigned short crc_recv = response[len - 2] | (response[len - 1] << 8);
+    if (crc_resp != crc_recv) return -2;  // invalid CRC
+    if (response[1] != 0x03) return -3;   // error in response
+
+    *value = (response[3] << 8) | response[4];
+    return 0;
 }
-// only works with C11 standard!
+
+void uart_send() {
+    // Implementation of UART send
+}
+
+int uart_receive() {
+    // Implementation of UART receive
+    return 0;
+}
+
+unsigned short crc16_modbus() {
+    // Implementation of CRC16 Modbus calculation
+    return 0;
+}
