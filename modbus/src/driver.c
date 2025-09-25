@@ -30,16 +30,27 @@ int read_modbus_register(int slave_addr, int reg_addr, int *value) {
     return 0;
 }
 
-void uart_send() {
+void uart_send(const unsigned char *data, int len) {
     // Implementation of UART send
 }
 
-int uart_receive() {
+int uart_receive(unsigned char *buf, int max_len) {
     // Implementation of UART receive
     return 0;
 }
 
-unsigned short crc16_modbus() {
+unsigned short crc16_modbus(const unsigned char *buf, int len) {
     // Implementation of CRC16 Modbus calculation
-    return 0;
+    unsigned short crc = 0xFFFF;
+    for (int pos = 0; pos < len; pos++) {
+        crc ^= (unsigned short)buf[pos];
+        for (int i = 0; i < 8; i++) {
+            if (crc & 1)
+                crc = (crc >> 1) ^ 0xA001;
+            else
+                crc = crc >> 1;
+        }
+    }
+    return crc;
+
 }
