@@ -1,4 +1,4 @@
-#ifdef DRIVER_CONTROL_H
+#ifndef DRIVER_CONTROL_H
 #define DRIVER_CONTROL_H
 
 #include "sdc35_status.h"

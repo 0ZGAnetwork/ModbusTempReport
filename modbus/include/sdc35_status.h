@@ -1,4 +1,4 @@
-#ifdef SDC35_STATUS_H
+#ifndef SDC35_STATUS_H
 #define SDC35_STATUS_H
 
 typedef struct {

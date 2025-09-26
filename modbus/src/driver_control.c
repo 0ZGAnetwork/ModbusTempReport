@@ -1,11 +1,12 @@
 #include "driver_control.h"
 #include "driver.h"
 #include <stdio.h>
+#include "sdc35_status.h"
 
 #define SLAVE_ADDR 1
 
 void create_snapshot(SDC35Status *status){
-    unsigned short regs[3];
+    int regs[3];
     int start_addr = 0x1455;
     int num_regs = 3;
 

@@ -15,7 +15,7 @@ void uart_init_max485() {
     uart_set_format(UART_PORT, 8, 1, UART_PARITY_NONE);
 }
 
-int read_modbus_register(int slave_addr, int reg_addr, int num_regs,  int *values) {
+int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *values) {
     // Implementation of reading a Modbus register
     unsigned char frame[8];
 
