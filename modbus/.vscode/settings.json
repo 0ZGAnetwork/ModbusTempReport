@@ -2,7 +2,9 @@
     "files.associations": {
         "task.h": "c",
         "driver_control.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "driver.h": "c",
+        "stdio.h": "c"
     },
     "cmake.sourceDirectory": "C:/Users/kanal/Desktop/M_Etap_I/EmR/modbus",
     "C_Cpp.dimInactiveRegions": false
