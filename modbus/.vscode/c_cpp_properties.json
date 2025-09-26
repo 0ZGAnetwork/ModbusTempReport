@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${env:PICO_SDK_PATH}/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -11,8 +12,8 @@
                 "_UNICODE"
             ],
             "cStandard": "c11",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "windows-gcc-x64"
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64"
         }
     ],
     "version": 4
