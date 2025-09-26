@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 #include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake) # old sdk
 set(PICO_SDK_PATH "C:/pico-sdk")
-include(${PICO_SDK_PATH}/pico_sdk_init.cmake) # new sdk
+include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake) # new sdk
 
 project(Modbus_example C CXX ASM)
 
