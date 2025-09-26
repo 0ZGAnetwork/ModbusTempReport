@@ -1,4 +1,16 @@
 #include "driver.h"
+#include "pico/time.h"
+#include <string.h>
+
+void uart_init_max485() {
+    uart_init(UART_PORT, 9600);
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+    gpio_init(MAX485_DE_RE_PIN);
+    gpio_set_dir(MAX485_DE_RE_PIN, GPIO_OUT);
+    gpio_put(MAX485_DE_RE_PIN, 0);
+    uart_set_format(UART_PORT, 8, 1, UART_PARITY_NONE);
+}
 
 int read_modbus_register(int slave_addr, int reg_addr, int *value) {
     // Implementation of reading a Modbus register
@@ -10,7 +22,7 @@ int read_modbus_register(int slave_addr, int reg_addr, int *value) {
     frame[1] = 0x03;               // Read Holding Register
     frame[2] = (reg_addr >> 8) & 0xFF;
     frame[3] = reg_addr & 0xFF;
-    frame[4] = 0x00;               // HIGH byte of number of registers to read
+    frame[4] = 0x00;
     frame[5] = 0x01;
 
     unsigned short crc = crc16_modbus(frame, 6);
@@ -18,7 +30,7 @@ int read_modbus_register(int slave_addr, int reg_addr, int *value) {
     frame[7] = (crc >> 8) & 0xFF;
 
     uart_send(frame, 8);
-    len = uart_receive(response, sizeof(response));
+    len = uart_receive(response, 7);
     if (len < 7) return -1;
 
     unsigned short crc_resp = crc16_modbus(response, len - 2);
@@ -32,11 +44,14 @@ int read_modbus_register(int slave_addr, int reg_addr, int *value) {
 
 void uart_send(const unsigned char *data, int len) {
     // Implementation of UART send
+    gpio_put(MAX485_DE_RE_PIN, 1);
+    uart_write_blocking(UART_PORT, data, len);
+    gpio_put(MAX485_DE_RE_PIN, 0);
 }
 
 int uart_receive(unsigned char *buf, int max_len) {
     // Implementation of UART receive
-    return 0;
+    return uart_read_blocking(UART_PORT, buf, max_len);
 }
 
 unsigned short crc16_modbus(const unsigned char *buf, int len) {

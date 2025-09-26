@@ -27,5 +27,5 @@ void create_snapshot(SDC35Status *status) {
     } else {
         status->alarm = -1;
     }
-    }
+    
 }
