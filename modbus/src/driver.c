@@ -2,6 +2,7 @@
 #include "pico/time.h"
 #include <string.h>
 
+
 #define TIMEOUT_US 200000
 
 void uart_init_max485() {
@@ -78,7 +79,7 @@ unsigned short crc16_modbus(const unsigned char *buf, int len) {
     unsigned short crc = 0xFFFF;
     for (int pos = 0; pos < len; pos++) {
         crc ^= (unsigned short)buf[pos];
-        for (int i = 0; i < 8; i++) 
+        for (int i = 0; i < 8; i++) {
             if (crc & 1)
                 crc = (crc >> 1) ^ 0xA001;
             else
