@@ -1,6 +1,7 @@
 #include "sdc35_status.h"
 #include "driver_control.h"
-
+#include "pico/stdio.h"
+#include "driver.h"
 
 int main (void){
     stdio_init_all();
