@@ -12,6 +12,8 @@
 #define UART_RX_PIN 1
 #define MAX485_DE_RE_PIN 22
 
+void uart_init_max485(void);
+
 // --- UART/modbus ---
 int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *values);
 void uart_send(const unsigned char *data, int len);
