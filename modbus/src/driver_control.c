@@ -42,6 +42,5 @@ void save_Snapshot_uart(const SDC35Status *status){
 }
 
 void format_timestamp(char *buf, int buf_size){
-    snprintf(buf, buf_size, "2025-09-26 15:00:00");
+    snprintf(buf, buf_size, "Status: OK ");
     }
-
