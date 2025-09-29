@@ -13,15 +13,17 @@ pico_sdk_init()
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include) # old
 #target_include_directories(Modbus_example PRIVATE &{CMAKE_CURRENT_LIST_DIR}/include)
 
-add_executable(Modbus_example
+add_executable(${PROJECT_NAME}
         src/driver_control.c
         src/driver.c
         src/main.c
         )
 
-target_link_libraries(Modbus_example
+target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     hardware_uart
 )
-pico_add_extra_outputs(Modbus_example)
+pico_add_extra_outputs(${PROJECT_NAME})
 
+pico_enable_stdio_uart(${PROJECT_NAME} 0)
+pico_enable_stdio_usb(${PROJECT_NAME} 1)
