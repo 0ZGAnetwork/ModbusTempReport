@@ -35,6 +35,12 @@ void save_Snapshot_csv(const SDC35Status *status){
     }
 }
 
+void save_Snapshot_uart(const SDC35Status *status){
+    printf("Timestamp,PV,SV,Alarm\n");
+    printf("%s,%.1f,%.1f,%d\n",
+              status->timestamp, status->pv, status->sv, status->alarm);
+}
+
 void format_timestamp(char *buf, int buf_size){
     snprintf(buf, buf_size, "2025-09-26 15:00:00");
     }
