@@ -16,6 +16,7 @@ void uart_init_max485(void);
 
 // --- UART/modbus ---
 int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *values);
+int write_modbus_register(int slave_addr, int reg_addr, int num_regs,int *value);
 void uart_send(const unsigned char *data, int len);
 int uart_received_timeout(unsigned char *buf, int expected_len,unsigned int timeout_us);
 unsigned short crc16_modbus(const unsigned char *buf, int len);

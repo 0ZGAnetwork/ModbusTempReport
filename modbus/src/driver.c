@@ -50,6 +50,11 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
     return 0;
 }
 
+int write_modbus_register(int slave_addr, int reg_addr, int num_regs,int *value){
+    //implementation of UART write
+    return 0;
+}
+
 void uart_send(const unsigned char *data, int len) {
     // Implementation of UART send
     gpio_put(MAX485_DE_RE_PIN, 1);
