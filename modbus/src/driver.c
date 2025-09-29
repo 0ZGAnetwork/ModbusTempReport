@@ -2,7 +2,7 @@
 #include "pico/time.h"
 #include <string.h>
 
-
+#define MAX_REGS 16
 #define TIMEOUT_US 200000
 
 void uart_init_max485() {
@@ -17,41 +17,51 @@ void uart_init_max485() {
 
 int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *values) {
     // Implementation of reading a Modbus register
-    unsigned char frame[8];
+    int total_read = 0;
 
-    frame[0] = (unsigned char)slave_addr;
-    frame[1] = 0x03;               // Read Holding Register
-    frame[2] = (reg_addr >> 8) & 0xFF;
-    frame[3] = reg_addr & 0xFF;
-    frame[4] = (num_regs >> 8) & 0xFF;;
-    frame[5] = num_regs & 0xFF;
+    while( total_read < num_regs) {
+        
+        int batch = (num_regs - total_read > MAX_REGS) ? MAX_REGS : (num_regs - total_read);
 
-    unsigned short crc = crc16_modbus(frame, 6);
-    frame[6] = crc & 0xFF;
-    frame[7] = (crc >> 8) & 0xFF;
+        unsigned char frame[8];
+        frame[0] = (unsigned char)slave_addr;
+        frame[1] = 0x03;               // Read Holding Register
+        int start_addr = reg_addr + total_read;
+        frame[2] = (start_addr >> 8) & 0xFF;
+        frame[3] = start_addr& 0xFF;
+        frame[4] = (batch >> 8) & 0xFF;
+        frame[5] = batch & 0xFF;
 
-    uart_send(frame, 8);
+        unsigned short crc = crc16_modbus(frame, 6);
+        frame[6] = crc & 0xFF;
+        frame[7] = (crc >> 8) & 0xFF;
 
-    //dynamic wait time based on number of registers
-    unsigned char response[64];
-    int resp_len = 2 * num_regs + 5;
-    int rcv = uart_received_timeout(response, resp_len, TIMEOUT_US);
-    if (rcv < resp_len) return -1; //timeout
+        uart_send(frame, 8);
 
-    unsigned short crc_resp = crc16_modbus(response, resp_len - 2);
-    unsigned short crc_recv = response[resp_len - 2] | (response[resp_len - 1] << 8);
-    if (crc_resp != crc_recv) return -2;  // invalid CRC
-    if (response[1] != 0x03) return -3;   // error in response
+        //dynamic wait time based on number of registers
+        unsigned char response[64];
+        int resp_len = 2 * batch + 5;
+        int rcv = uart_received_timeout(response, resp_len, TIMEOUT_US);
+        if (rcv < resp_len) return -1; //timeout
 
-    for (int i = 0; i < num_regs; i++) {
-        values[i] = response[3 +2*i] << 8 | response[4 + 2*i];
+        unsigned short crc_resp = crc16_modbus(response, resp_len - 2);
+        unsigned short crc_recv = response[resp_len - 2] | (response[resp_len - 1] << 8);
+        if (crc_resp != crc_recv) return -2;  // invalid CRC
+        if (response[1] != 0x03) return -3;   // error in response
+
+        for (int i = 0; i < batch; i++) {
+            values[total_read + i] = response[3 + 2*i] << 8 | response[4 + 2*i];
+        }
+
+        total_read += batch;
     }
-
     return 0;
 }
 
 int write_modbus_register(int slave_addr, int reg_addr, int num_regs,int *value){
     //implementation of UART write
+
+
     return 0;
 }
 
