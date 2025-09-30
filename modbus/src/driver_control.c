@@ -45,7 +45,7 @@ void create_snapshot(SDC35Status *status) {
             status->alarm_ct_over     = (status->alarms_status & (1 << 10)) != 0;
 
         } else {
-            status->alarms_status = 0xFFFF;
+            status->alarms_status = 0x0000;
             status->alarm_pv_over = 0;
             status->alarm_pv_under = 0;
             status->alarm_cj_burnout = 0;
