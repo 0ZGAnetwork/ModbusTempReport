@@ -37,11 +37,11 @@ void create_snapshot(SDC35Status *status){
 //}
 
 void save_Snapshot_uart(const SDC35Status *status){
-    printf("Timestamp,PV,SV,Alarm\n");
-    printf("%s,%.1f,%.1f,%d\n",
-              status->timestamp, status->pv, status->sv, status->alarm);
+    printf("Timestamp,pv_lo_max,pv_hi_max,sv_lo_max,sv_hi_max\n");
+    printf("%s,%.1f,%.1f,%.1f,%.1f\n",
+              status->timestamp, status->pv_lo_max, status->pv_hi_max, status->sv_lo_max, status->sv_hi_max);
 }
 
 void format_timestamp(char *buf, int buf_size){
-    snprintf(buf, buf_size, "Status: OK ");
+    snprintf(buf, buf_size, "Status: Test Snapshot ");
     }
