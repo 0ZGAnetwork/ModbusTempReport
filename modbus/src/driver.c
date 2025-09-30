@@ -12,7 +12,7 @@ void uart_init_max485() {
     gpio_init(MAX485_DE_RE_PIN);
     gpio_set_dir(MAX485_DE_RE_PIN, GPIO_OUT);
     gpio_put(MAX485_DE_RE_PIN, 0);
-    uart_set_format(UART_PORT, 8, 1, UART_PARITY_NONE);
+    uart_set_format(UART_PORT, 8, 2, UART_PARITY_NONE); //8N2
 }
 
 int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *values) {
