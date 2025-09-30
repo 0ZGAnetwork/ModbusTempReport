@@ -19,23 +19,22 @@ void create_snapshot(SDC35Status *status){
         status->sv_hi_max = (float)regs[3] / 10.0f;
     } else {
         status->pv_lo_max = -1;
-        status->pv_ho_max = -1;
+        status->pv_hi_max = -1;
         status->sv_lo_max = -1;
         status->sv_hi_max = -1;
     }
     format_timestamp(status->timestamp, sizeof(status->timestamp));
 }
 
-
-void save_Snapshot_csv(const SDC35Status *status){
-    FILE *f = fopen("snapshot.csv", "w");
-    if (f) {
-        fprintf(f, "Timestamp,PV,SV,Alarm\n");
-        fprintf(f, "%s,%.1f,%.1f,%d\n",
-                status->timestamp, status->pv, status->sv, status->alarm);
-        fclose(f);
-    }
-}
+//void save_Snapshot_csv(const SDC35Status *status){
+//    FILE *f = fopen("snapshot.csv", "w");
+//    if (f) {
+//        fprintf(f, "Timestamp,PV,SV,Alarm\n");
+//        fprintf(f, "%s,%.1f,%.1f,%d\n",
+//                status->timestamp, status->pv, status->sv, status->alarm);
+//        fclose(f);
+//    }
+//}
 
 void save_Snapshot_uart(const SDC35Status *status){
     printf("Timestamp,PV,SV,Alarm\n");
