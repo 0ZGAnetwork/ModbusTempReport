@@ -6,5 +6,4 @@ build/
 *.uf2
 .vscode/
 test_crc/
-*.py
 snapshot.csv
