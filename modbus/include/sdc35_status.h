@@ -1,6 +1,9 @@
 #ifndef SDC35_STATUS_H
 #define SDC35_STATUS_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 typedef struct {
     float pv_lo_max;
     float pv_hi_max;
