@@ -31,7 +31,7 @@ with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
                     
                     values = line.split(',')
                     if len(values) == 14:
-                        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S")')
+                        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         csv_writer.writerow([current_time] + values)
                         csvfile.flush()
                         print("Received:", [current_time] + values)

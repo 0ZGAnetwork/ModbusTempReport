@@ -70,9 +70,19 @@ void create_snapshot(SDC35Status *status) {
 //}
 
 void save_Snapshot_uart(const SDC35Status *status){
-    printf("Timestamp,pv_lo_max,pv_hi_max,sv_lo_max,sv_hi_max\n");
-    printf("%s,%.1f,%.1f,%.1f,%.1f\n",
-              status->timestamp, status->pv_lo_max, status->pv_hi_max, status->sv_lo_max, status->sv_hi_max);
+    printf("timestamp,pv_lo_max,pv_hi_max,sv_lo_max,sv_hi_max,config,alarm,"
+           "alarm_pv_over,alarm_pv_under,alarm_cj_burnout,alarm_rsp_over,"
+           "alarm_mfb_burnout,alarm_motor_fail,alarm_ct_over\n");
+
+    printf("%s,%.1f,%.1f,%.1f,%.1f,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+           status->timestamp,
+           status->pv_lo_max, status->pv_hi_max,
+           status->sv_lo_max, status->sv_hi_max,
+           status->config, status->alarm,
+           status->alarm_pv_over, status->alarm_pv_under,
+           status->alarm_cj_burnout, status->alarm_rsp_over,
+           status->alarm_mfb_burnout, status->alarm_motor_fail,
+           status->alarm_ct_over);
 }
 
 void format_timestamp(char *buf, int buf_size){
