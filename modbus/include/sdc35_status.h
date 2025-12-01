@@ -9,6 +9,8 @@ typedef struct {
     float pv_hi_max;
     float sv_lo_max;
     float sv_hi_max;
+    float pv;
+    float sv;
 
     int config;
     int alarm;
