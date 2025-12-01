@@ -1,9 +1,11 @@
 #include "driver.h"
 #include "pico/time.h"
 #include <string.h>
+#include <stdio.h>
+
 
 #define MAX_REGS 16
-#define TIMEOUT_US 200000
+#define TIMEOUT_US 2000000
 
 void uart_init_max485() {
     uart_init(UART_PORT, 9600);
@@ -37,12 +39,24 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
         frame[7] = (crc >> 8) & 0xFF;
 
         uart_send(frame, 8);
-
+        printf("Sent frame: ");
+        for (int i = 0; i < 8; i++) printf("%02X ", frame[i]);
+        printf("\n");
         //dynamic wait time based on number of registers
         unsigned char response[64];
         int resp_len = 2 * batch + 5;
         int rcv = uart_received_timeout(response, resp_len, TIMEOUT_US);
-        if (rcv < resp_len) return -1; //timeout
+        //if (rcv < resp_len) return -1; //timeout
+        if (rcv < resp_len) {
+            printf("rcv = %d\n", rcv);
+            printf("Timeout or incomplete response! Expected %d, got %d\n", resp_len, rcv);
+        for (int i = 0; i < rcv; i++) {
+            printf("%02X ", response[i]);
+        }
+        printf("\n");
+        return -1;
+    }
+
 
         unsigned short crc_resp = crc16_modbus(response, resp_len - 2);
         unsigned short crc_recv = response[resp_len - 2] | (response[resp_len - 1] << 8);
@@ -54,6 +68,22 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
         }
 
         total_read += batch;
+        printf("--------------------------\n");
+        printf("Raw data: ");
+        for (int i = 0; i < rcv; i++) {
+            printf("%02X ", response[i]);
+        }
+        printf("\n");
+
+        printf("CRC calc=%04X, recv=%04X -> %s\n",
+            crc_resp, crc_recv,
+            (crc_resp == crc_recv) ? "OK" : "FAIL");
+
+        for (int i = 0; i < batch; i++) {
+            printf("Register[%d] = %d (0x%04X)\n",
+                total_read + i, values[total_read + i], values[total_read + i]);
+        }
+        printf("--------------------------\n");
     }
     return 0;
 }
@@ -69,8 +99,9 @@ void uart_send(const unsigned char *data, int len) {
     // Implementation of UART send
     gpio_put(MAX485_DE_RE_PIN, 1);
     uart_write_blocking(UART_PORT, data, len);
-    sleep_us(50); // wait for transmission to complete for max485 board
+    while (!uart_is_writable(UART_PORT)); 
     gpio_put(MAX485_DE_RE_PIN, 0);
+    sleep_us(5000);
 }
 
 int uart_received_timeout(unsigned char *buf, int expected_len,unsigned int timeout_us) {
