@@ -6,8 +6,14 @@ build/
 *.uf2
 .vscode/
 test_crc/
-snapshot.csv
+*.csv
 test_from_port.csv
 test_to_csv.csv
 *.vscode
 *.csv
+*.png
+*.jpg
+*.py
+build/
+include/
+src/
