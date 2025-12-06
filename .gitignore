@@ -1,3 +1,7 @@
-*.pdf
+task_1.pdf
+task_2.pdf
+task_3.pdf
+task 4.pdf
+task_5.pdf
 build/
 *.elf
