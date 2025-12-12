@@ -2,8 +2,6 @@
 #include "pico/time.h"
 #include <string.h>
 #include <stdio.h>
-
-
 #define MAX_REGS 16
 #define TIMEOUT_US 2000000
 
@@ -11,10 +9,11 @@ void uart_init_max485() {
     uart_init(UART_PORT, 9600);
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-    gpio_init(MAX485_DE_RE_PIN);
-    gpio_set_dir(MAX485_DE_RE_PIN, GPIO_OUT);
-    gpio_put(MAX485_DE_RE_PIN, 0);
-    uart_set_format(UART_PORT, 8, 2, UART_PARITY_NONE); //8N2
+    //gpio_init(MAX485_DE_RE_PIN);
+    //gpio_set_dir(MAX485_DE_RE_PIN, GPIO_OUT);
+    //gpio_put(MAX485_DE_RE_PIN, 0);
+    //uart_set_format(UART_PORT, 8, 2, UART_PARITY_NONE); //8N2
+    uart_set_format(UART_PORT, 8, 1, UART_PARITY_EVEN); // 8E1
 }
 
 int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *values) {
@@ -39,7 +38,7 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
         frame[7] = (crc >> 8) & 0xFF;
 
         uart_send(frame, 8);
-        printf("Sent frame: ");
+        printf("Sent frame : ");
         for (int i = 0; i < 8; i++) printf("%02X ", frame[i]);
         printf("\n");
         //dynamic wait time based on number of registers
@@ -47,7 +46,7 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
         int resp_len = 2 * batch + 5;
         int rcv = uart_received_timeout(response, resp_len, TIMEOUT_US);
         //if (rcv < resp_len) return -1; //timeout
-        if (rcv < resp_len) {
+        if (rcv <= 0 || rcv < resp_len) {
             printf("rcv = %d\n", rcv);
             printf("Timeout or incomplete response! Expected %d, got %d\n", resp_len, rcv);
         for (int i = 0; i < rcv; i++) {
@@ -56,8 +55,6 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
         printf("\n");
         return -1;
     }
-
-
         unsigned short crc_resp = crc16_modbus(response, resp_len - 2);
         unsigned short crc_recv = response[resp_len - 2] | (response[resp_len - 1] << 8);
         if (crc_resp != crc_recv) return -2;  // invalid CRC
@@ -90,18 +87,18 @@ int read_modbus_registers(int slave_addr, int reg_addr, int num_regs,  int *valu
 
 int write_modbus_register(int slave_addr, int reg_addr, int num_regs,int *value){
     //implementation of UART write
-
-
+    // don't implement a code right now
     return 0;
 }
 
 void uart_send(const unsigned char *data, int len) {
     // Implementation of UART send
-    gpio_put(MAX485_DE_RE_PIN, 1);
+    //gpio_put(MAX485_DE_RE_PIN, 1);
     uart_write_blocking(UART_PORT, data, len);
-    while (!uart_is_writable(UART_PORT)); 
-    gpio_put(MAX485_DE_RE_PIN, 0);
-    sleep_us(5000);
+    //while (!uart_is_writable(UART_PORT)); 
+    uart_tx_wait_blocking(UART_PORT);
+    //gpio_put(MAX485_DE_RE_PIN, 0);
+    sleep_us(3500);
 }
 
 int uart_received_timeout(unsigned char *buf, int expected_len,unsigned int timeout_us) {

@@ -17,13 +17,12 @@ void create_snapshot(SDC35Status *status) {
             status->pv = (float)regs[0] / 10.0f;
         } else {
             status->pv = -1;
-            
+            printf("s");   
         }
-    
-
     format_timestamp(status->timestamp, sizeof(status->timestamp));
 }
 
+// ignore:
 //void save_Snapshot_csv(const SDC35Status *status){
 //    FILE *f = fopen("snapshot.csv", "w");
 //    if (f) {

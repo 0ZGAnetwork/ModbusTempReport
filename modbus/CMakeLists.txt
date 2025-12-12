@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME}
         src/driver_control.c
         src/driver.c
         src/main.c
+        #src/test.c
         )
 
 target_link_libraries(${PROJECT_NAME}
