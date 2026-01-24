@@ -15,13 +15,14 @@ int main (void){
 
     while(1) {
 
-    create_snapshot(&status);
-    save_Snapshot_uart(&status);
+        //create_snapshot(&status);
+        //save_Snapshot_uart(&status);
+        test_modbus_slave();
 
         gpio_put(GPIO2, 1);
         sleep_ms(2000);
         gpio_put(GPIO2, 0);
-        sleep_ms(250);
+        sleep_ms(200);
     }
 
     return 0;
