@@ -18,3 +18,15 @@ para->setup>64-70
 69: 0, 1 stop bit
 70: -
 
+To do:
+- Schemat of Hardware
+- add reading mor than one register
+- prepare data structure
+- connect with report1
+
+czyli jak ustawie w do : Eu1.1 na 0 to ponizej PV<28 bede mial wyswietlony ev1, a jezeli ustawie w do : Eu1.1 na 1 to przekraczajac temperature PV>25 mam przelaczany
+
+w 'do' : Eu1.1 na 0 to PV < 28 → EV1 świeci, D1 nic nie robi
+w 'do' : Eu1.1 na 1 to grzalka pracuje a EV1 tylko przelacza sie
+dodatkowo majac wlaczone Eu1.1 na 1 i
+'EuCF': E1.C1 na 4 (deviation limit ) jezeli PV(28) + 4 = przy 32 zaloczy sie D1 

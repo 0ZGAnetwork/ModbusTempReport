@@ -121,6 +121,9 @@ int write_modbus_register(int slave_addr, int reg_addr, int num_regs,int *value)
 
 void uart_send(const unsigned char *data, int len) {
     // Implementation of UART send for TTL-485 v2.0 (auto direction control)
+    
+    while(uart_is_readable(UART_PORT)) uart_getc(UART_PORT);
+    
     uart_write_blocking(UART_PORT, data, len);
     uart_tx_wait_blocking(UART_PORT);
     
@@ -128,15 +131,15 @@ void uart_send(const unsigned char *data, int len) {
     //sleep_ms(200);  // Wait 200ms for direction to switch and settle
     
     // Clear any echo/residual data from RX buffer
-    int cleared = 0;
-    while(uart_is_readable(UART_PORT)) {
-        uart_getc(UART_PORT);
-        cleared++;
-    }
-    if (cleared > 0) {
-        printf("DEBUG: Cleared %d echo bytes from RX buffer\n", cleared);
-    }
-        sleep_ms(200);  // Give SDC35 device 200ms to process and respond
+    // int cleared = 0;
+    // while(uart_is_readable(UART_PORT)) {
+    //     uart_getc(UART_PORT);
+    //     cleared++;
+    // }
+    // if (cleared > 0) {
+    //     printf("DEBUG: Cleared %d echo bytes from RX buffer\n", cleared);
+    // }
+    //     sleep_ms(200);  // Give SDC35 device 200ms to process and respond
 }
 
 int uart_received_timeout(unsigned char *buf, int expected_len,unsigned int timeout_us) {
@@ -210,8 +213,8 @@ int uart_read_modbus_response(unsigned char *buf, int buf_size, unsigned int tim
     return rcv == total_expected ? rcv : -1;
 }
 
-unsigned short crc16_modbus(const unsigned char *buf, int len) {
-    // Implementation of CRC16 Modbus calculation
+ unsigned short crc16_modbus(const unsigned char *buf, int len) {
+//     // Implementation of CRC16 Modbus calculation
     unsigned short crc = 0xFFFF;
     for (int pos = 0; pos < len; pos++) {
         crc ^= (unsigned short)buf[pos];
@@ -224,4 +227,11 @@ unsigned short crc16_modbus(const unsigned char *buf, int len) {
     }
     return crc;
 
+ } // need to be 
+
+bool crc16_check(const uint8_t *buf, int len) {
+    if (len < 3) return false; // first 3 bits
+    uint16_t crc_calc = crc16_modbus(buf, len - 2); // calculate CRC for all bytes except last 2
+    uint16_t crc_recv = buf[len-2] | (buf[len-1] << 8); // CRC received
+    return (crc_calc == crc_recv);
 }

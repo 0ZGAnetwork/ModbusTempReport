@@ -7,6 +7,8 @@
 int main (void){
     stdio_init_all();
     uart_init_max485();
+    modbus_flush_rx();
+
     SDC35Status status;
 
     const uint GPIO2 = 2;
@@ -14,10 +16,9 @@ int main (void){
     gpio_set_dir(GPIO2, GPIO_OUT);
 
     while(1) {
-
-        //create_snapshot(&status);
-        //save_Snapshot_uart(&status);
-        test_modbus_slave();
+        //test_modbus_slave();
+        create_snapshot(&status); // SCADA / DCS data capture
+        show_Snapshot_uart(&status);
 
         gpio_put(GPIO2, 1);
         sleep_ms(2000);
