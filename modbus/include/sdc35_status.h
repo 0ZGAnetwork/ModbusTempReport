@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 typedef struct {
     // some register are not displayed depending on the 
     // availibity of optional function, model number, display 
@@ -88,5 +89,6 @@ typedef struct {
     // --- Timestamp ---
     char timestamp[32];
 } SDC35Status;
+
 
 #endif

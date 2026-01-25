@@ -18,6 +18,8 @@ add_executable(${PROJECT_NAME}
         src/driver_control.c
         src/driver.c
         src/main.c
+        #src/sdc35_status.c
+        src/sdc35_csv.c
         #src/modbus_test.c
         #test/test.c
         )

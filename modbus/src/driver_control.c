@@ -131,24 +131,10 @@ void test_modbus_slave() { // debugging for one register, required raw frame
     printf(" (%d bytes received)\n", count);
 }
 
-// void create_snapshot(SDC35Status *status) {
-      
-//     if (!modbus_check_slave(SLAVE_ADDR)) {
-//         printf("DEBUG: Slave %d nie odpowiada!\n", SLAVE_ADDR);
-//         status->pv = -1;
-//         format_timestamp(status->timestamp, sizeof(status->timestamp));
-//         return;
-//     }
-//     printf("Slave %d is responsive.\n", SLAVE_ADDR);
-    
-//     status->pv = -1;
-//     format_timestamp(status->timestamp, sizeof(status->timestamp));
-// }
-
 void read_operation_display(SDC35Status *status) {
     uint16_t regs[4]; 
 
-    if (modbus_read_regs(0x1455, 4, regs) != 0) {
+    if (modbus_read_regs(0x238D, 4, regs) != 0) {
         printf("not available (model / user level) reading operation display registers!\n");
         status->pv = -1;
         status->sv = -1;
@@ -167,11 +153,11 @@ void read_operation_display(SDC35Status *status) {
 void read_pv_sv_limits(SDC35Status *status) {
     modbus_flush_rx();
     uint16_t regs_limits[4];
-    if (modbus_read_regs(0x238D, 4, regs_limits) != 0) {//0x1455
+    if (modbus_read_regs(0x1455, 4, regs_limits) != 0) {//0x1455
         printf("not available (model / user level) reading PV/SV limits (1455-1458)!\n");
         status->pv_lo_limit = -1;
         status->pv_hi_limit = -1;
-        status->sv_lo_limit = -60;
+        status->sv_lo_limit = -1;
         status->sv_hi_limit = -1;
         return;
     }
@@ -489,16 +475,6 @@ void create_snapshot(SDC35Status *status) {
     format_timestamp(status->timestamp, sizeof(status->timestamp));
 
 }
-    // ignore:
-    // void save_Snapshot_csv(const SDC35Status *status){
-    //    FILE *f = fopen("snapshot.csv", "w");
-    //    if (f) {
-    //        fprintf(f, "Timestamp,PV,SV,Alarm\n");
-    //        fprintf(f, "%s,%.1f,%.1f,%d\n",
-    //                status->timestamp, status->pv, status->sv, status->alarm);
-    //        fclose(f);
-    //    }
-    // }
 
 void show_Snapshot_uart(const SDC35Status *status)
 {
