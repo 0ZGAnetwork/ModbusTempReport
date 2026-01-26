@@ -1,8 +1,8 @@
 # """
 # This script generate 3 report:
 # - report 1: read current configuration and data,
-# - report 2: receive data for 5 min,
-# - report 3: receive data for 24 h
+# - report 2: receive data for 1 min - initial, test communication of process system,
+# - report 3: receive data for specified process
 
 # all report generate one pdf file on github !
 # """

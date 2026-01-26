@@ -72,7 +72,7 @@ void modbus_read(uint16_t start, uint16_t count) {
     frame[7] = crc >> 8;
 
     modbus_flush_rx();
-    print_frame_hex(frame, 8, "TX");
+    //print_frame_hex(frame, 8, "TX");
     uart_send(frame, 8);
 
 }
@@ -102,7 +102,7 @@ int modbus_read_regs(uint16_t start,
     int len = modbus_receive(resp, expected, timeout_ms);
     if (len != expected)
         return -1; // timeout / niepełna ramka
-    print_frame_hex(resp, len, "RX");
+    //print_frame_hex(resp, len, "RX");
     if (!crc16_check(resp, len))
         return -2;
     if (resp[1] & 0x80)
@@ -135,7 +135,7 @@ void read_operation_display(SDC35Status *status) {
     uint16_t regs[4]; 
 
     if (modbus_read_regs(0x238D, 4, regs) != 0) {
-        printf("not available (model / user level) reading operation display registers!\n");
+        //printf("not available (model / user level) reading operation display registers!\n");
         status->pv = -1;
         status->sv = -1;
         status->lsp = -1;
@@ -172,7 +172,7 @@ void read_setup(SDC35Status *status) {
     uint16_t reg;
     // --- PV input type (1451) ---
     if (modbus_read_regs(0x1451, 1, &reg) != 0) {
-        printf("not available (model / user level)reading PV input type (1451)!\n");
+        //printf("not available (model / user level)reading PV input type (1451)!\n");
         status->pv_input_type = 0xFFFF;
     } else {
         status->pv_input_type = reg;
@@ -217,7 +217,7 @@ void read_setup(SDC35Status *status) {
 void read_setup_control(SDC35Status *status) {
     uint16_t regs[7]; // first block: 145E-1465
     if (modbus_read_regs(0x145E, 7, regs) != 0) {
-        printf("not available (model / user level) reading control setup registers block 1!\n");
+        //printf("not available (model / user level) reading control setup registers block 1!\n");
         status->control_action = 0xFFFF;
         status->output_at_pv_alarm = 0xFFFF;
         status->output_operation_at_pv_alarm = 0xFFFF;
@@ -236,7 +236,7 @@ void read_setup_control(SDC35Status *status) {
     }
     // second block: 1468
     if (modbus_read_regs(0x1468, 1, regs) != 0) {
-        printf("not available (model / user level) reading zone PID operation!\n");
+        //printf("not available (model / user level) reading zone PID operation!\n");
         status->zone_pid_operation = 0xFFFF;
     } else {
         status->zone_pid_operation = regs[0];
@@ -246,7 +246,7 @@ void read_setup_control(SDC35Status *status) {
 void read_alarms(SDC35Status *status) {
     uint16_t regs[3]; // 3800, 3801, 3802
     if (modbus_read_regs(0x3800, 3, regs) != 0) {
-        printf("Reading alarm registers!\n");
+        //printf("Reading alarm registers!\n");
         // --- debug ---
         status->alarm_typical = 0xFFFF;
         status->alarm_D0      = 0xFFFF;
@@ -281,56 +281,56 @@ void read_config(SDC35Status *status) {
     uint16_t reg;
     // --- Control action (145E) ---
     if (modbus_read_regs(0x145E, 1, &reg) != 0) {
-        printf("not available (model / user level) reading control action (145E)!\n");
+        //printf("not available (model / user level) reading control action (145E)!\n");
         status->control_action = 0xFFFF;
     } else {
         status->control_action = reg;
     }
     // --- Output operation at PV alarm (145F) ---
     if (modbus_read_regs(0x145F, 1, &reg) != 0) {
-        printf("not available (model / user level) reading output operation at PV alarm (145F)!\n");
+        //printf("not available (model / user level) reading output operation at PV alarm (145F)!\n");
         status->output_operation_at_pv_alarm = 0xFFFF;
     } else {
         status->output_operation_at_pv_alarm = reg;
     }
     // --- Output at PV alarm (1460) ---
     if (modbus_read_regs(0x1460, 1, &reg) != 0) {
-        printf("not available (model / user level) reading output at PV alarm (1460)!\n");
+        //printf("not available (model / user level) reading output at PV alarm (1460)!\n");
         status->output_at_pv_alarm = 0xFFFF;
     } else {
         status->output_at_pv_alarm = reg;
     }
     // --- Heat/Cool control (146A) ---
     if (modbus_read_regs(0x146A, 1, &reg) != 0) {
-        printf("not available (model / user level) reading heat/cool control (146A)!\n");
+        //printf("not available (model / user level) reading heat/cool control (146A)!\n");
         status->heat_cool_control = 0xFFFF;
     } else {
         status->heat_cool_control = reg;
     }
     // --- LSP system group (146E) ---
     if (modbus_read_regs(0x146E, 1, &reg) != 0) {
-        printf("not available (model / user level) reading LSP system group (146E)!\n");
+        //printf("not available (model / user level) reading LSP system group (146E)!\n");
         status->lsp_system_group = 0xFFFF;
     } else {
         status->lsp_system_group = reg;
     }
     // --- Preset manual value (1464) ---
     if (modbus_read_regs(0x1464, 1, &reg) != 0) {
-        printf("not available (model / user level) reading preset manual value (1464)!\n");
+        //printf("not available (model / user level) reading preset manual value (1464)!\n");
         status->preset_manual_value = 0xFFFF;
     } else {
         status->preset_manual_value = reg;
     }
     // --- PID output mode (1465) ---
     if (modbus_read_regs(0x1465, 1, &reg) != 0) {
-        printf("not available (model / user level) reading PID output mode (1465)!\n");
+        //printf("not available (model / user level) reading PID output mode (1465)!\n");
         status->pid_output_mode = 0xFFFF;
     } else {
         status->pid_output_mode = reg;
     }
     // --- Zone PID operation (1468) ---
     if (modbus_read_regs(0x1468, 1, &reg) != 0) {
-        printf("not available (model / user level) reading zone PID operation (1468)!\n");
+        //printf("not available (model / user level) reading zone PID operation (1468)!\n");
         status->zone_pid_operation = 0xFFFF;
     } else {
         status->zone_pid_operation = reg;
@@ -342,14 +342,14 @@ void read_parameter_bank(SDC35Status *status) {
     uint16_t reg;
     // --- Control method (1771) ---
     if (modbus_read_regs(0x1771, 1, &reg) != 0) {
-        printf("not available (model / user level) reading control method (1771)!\n");
+        //printf("not available (model / user level) reading control method (1771)!\n");
         status->control_method = 0xFFFF;
     } else {
         status->control_method = reg;
     }
     // --- Differential (1774) ---
     if (modbus_read_regs(0x1774, 2, regs) != 0) {
-        printf("not available (model / user level) reading differential (1774)!\n");
+        //printf("not available (model / user level) reading differential (1774)!\n");
         status->differential = -1;
     } else {
         // Połączenie dwóch rejestrów w float
@@ -358,7 +358,7 @@ void read_parameter_bank(SDC35Status *status) {
     }
     // --- Bank type (2135) ---
     if (modbus_read_regs(0x2135, 1, &reg) != 0) {
-        printf("not available (model / user level) reading bank type (2135)!\n");
+        //printf("not available (model / user level) reading bank type (2135)!\n");
         status->bank_type = 0xFFFF;
     } else {
         status->bank_type = reg;
@@ -369,7 +369,7 @@ void read_communication_modbus(SDC35Status *status) {
     uint16_t regs[6]; // 6 rejestrów od 1490 do 1495
 
     if (modbus_read_regs(0x1490, 6, regs) != 0) {
-        printf("not available (model / user level) reading Modbus communication registers!\n");
+        //printf("not available (model / user level) reading Modbus communication registers!\n");
         status->comm_type      = 0xFFFF;
         status->station_addr   = 0xFFFF;
         status->tx_speed       = 0xFFFF;
@@ -392,21 +392,21 @@ void read_aux_outputs(SDC35Status *status) {
 
     // --- Aux output range (1484) ---
     if (modbus_read_regs(0x1484, 1, &reg) != 0) {
-        printf("not available (model / user level) reading aux output range (1484)!\n");
+        //printf("not available (model / user level) reading aux output range (1484)!\n");
         status->aux_output_range = 0xFFFF;
     } else {
         status->aux_output_range = reg;
     }
     // --- Aux type (1485) ---
     if (modbus_read_regs(0x1485, 1, &reg) != 0) {
-        printf("not available (model / user level) reading aux type (1485)!\n");
+        //printf("not available (model / user level) reading aux type (1485)!\n");
          status->aux_type = 0xFFFF;
     } else {
         status->aux_type = reg;
     }
     // --- Aux scale low (1486) ---
     if (modbus_read_regs(0x1486, 2, regs) != 0) {
-        printf("not available (model / user level) reading aux scale low (1486)!\n");
+        //printf("not available (model / user level) reading aux scale low (1486)!\n");
         status->aux_scale_low = -1;
     } else {
         // połączenie dwóch rejestrów w float
@@ -423,7 +423,7 @@ void read_aux_outputs(SDC35Status *status) {
     }
     // --- Aux mv scale (1488) ---
     if (modbus_read_regs(0x1488, 2, regs) != 0) {
-        printf("not available (model / user level) reading aux mv scale (1488)!\n");
+        //printf("not available (model / user level) reading aux mv scale (1488)!\n");
         status->aux_mv_scale = -1;
     } else {
         uint32_t tmp = ((uint32_t)regs[0] << 16) | regs[1];
@@ -431,14 +431,14 @@ void read_aux_outputs(SDC35Status *status) {
     }
     // --- Position proportional type (1489) ---
     if (modbus_read_regs(0x1489, 1, &reg) != 0) {
-        printf("not available (model / user level) reading position proportional type (1489)!\n");
+        //printf("not available (model / user level) reading position proportional type (1489)!\n");
         status->position_proportional_type = 0xFFFF;
     } else {
         status->position_proportional_type = reg;
     }
     // --- Motor auto adjust (148C) ---
     if (modbus_read_regs(0x148C, 1, &reg) != 0) {
-        printf("not available (model / user level) reading motor auto adjust (148C)!\n");
+        //printf("not available (model / user level) reading motor auto adjust (148C)!\n");
         status->motor_auto_adjust = 0xFFFF;
     } else {
         status->motor_auto_adjust = reg;

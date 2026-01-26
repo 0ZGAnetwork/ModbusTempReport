@@ -28,6 +28,11 @@ target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     hardware_uart
 )
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    PICO_STDIO_FLOAT_SUPPORT=1
+)
+
 pico_add_extra_outputs(${PROJECT_NAME})
 
 pico_enable_stdio_uart(${PROJECT_NAME} 0)

@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 int main(void) {
-    stdio_init_all();        // uruchom USB serial
+    stdio_init_all();        // USB serial
     uart_init_max485();
     modbus_flush_rx();
 
@@ -36,29 +36,15 @@ int main(void) {
     printf("Connected. Commands available: report1 / report2 / report3 / exit\n");
     printf("Waiting for command...\n");
 
-    static bool menu_shown = false;
-    static bool usb_was_connected = true; // bo już połączyliśmy się przy starcie
-    uint32_t last_time = 0;
-
     while (1) {
-        // sprawdzenie stanu USB
-        bool usb_now = stdio_usb_connected();
-        if (usb_now && !usb_was_connected) {
-            menu_shown = false; // nowa sesja
-        }
-        usb_was_connected = usb_now;
-
-        if (usb_now && !menu_shown) {
-            printf("Connected. Commands available: report1 / report2 / report3 / exit\n");
-            printf("Waiting for command...\n");
-            menu_shown = true;
-        }
-
-        int c = getchar_timeout_us(100);  // odczyt znaku non-blocking
+        int c = getchar_timeout_us(100);
         if (c == PICO_ERROR_TIMEOUT) continue;
 
-        if (c == '\r' || c == '\n') {  // koniec komendy
-            if (i == 0) continue;      // ignoruj puste linie
+        // ignoruj znaki kontrolne w środku komendy
+        if (c == '\r') continue;
+
+        if (c == '\n') {  // koniec komendy
+            if (i == 0) continue;  // pusta linia
             cmd[i] = '\0';
             i = 0;
 
@@ -75,12 +61,11 @@ int main(void) {
             }
             else if (strcmp(cmd, "report2") == 0) {
                 uint32_t duration_ms = 60000;
-                uint32_t start_time = to_ms_since_boot(get_absolute_time());
-                last_time = start_time;
+                uint32_t last_time = to_ms_since_boot(get_absolute_time());
+                uint32_t start_time = last_time;
 
                 while (to_ms_since_boot(get_absolute_time()) - start_time < duration_ms) {
                     uint32_t now = to_ms_since_boot(get_absolute_time());
-
                     if (now - last_time >= 5000) { 
                         last_time = now;
 
@@ -93,17 +78,17 @@ int main(void) {
                         gpio_put(GPIO2, 0);
                     }
 
-                    // sprawdź, czy użytkownik wpisuje exit w trakcie report2
+                    // odczyt exit w trakcie report2
                     int c2 = getchar_timeout_us(100);
                     if (c2 != PICO_ERROR_TIMEOUT) {
-                        if (c2 == '\r' || c2 == '\n') {
+                        if (c2 == '\n') {
                             cmd[i] = '\0';
                             i = 0;
                             if (strcmp(cmd, "exit") == 0) {
                                 printf("Exiting program.\n");
                                 return 0;
                             }
-                        } else if (i < sizeof(cmd)-1) {
+                        } else if (i < sizeof(cmd)-1 && c2 >= 32 && c2 <= 126) {  // tylko drukowalne znaki
                             cmd[i++] = c2;
                         }
                     }
@@ -128,8 +113,8 @@ int main(void) {
 
             printf("Waiting for command...\n");
         }
-        else if (i < sizeof(cmd)-1) {
-            cmd[i++] = c;  // budowanie komendy
+        else if (i < sizeof(cmd)-1 && c >= 32 && c <= 126) {  // tylko drukowalne
+            cmd[i++] = c;
         }
     }
 }
