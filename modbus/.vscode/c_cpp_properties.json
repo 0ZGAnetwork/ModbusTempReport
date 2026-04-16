@@ -13,7 +13,8 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "${env:ARM_GCC_PATH}/bin/arm-none-eabi-gcc.exe",
+            // "compilerPath": "${env:ARM_GCC_PATH}/bin/arm-none-eabi-gcc.exe",
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64"

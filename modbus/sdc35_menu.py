@@ -1,6 +1,7 @@
 import subprocess
 import os
 import time
+import csv
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 report1_to_git = os.path.join(BASE_DIR, "Report1.pdf")
@@ -26,7 +27,7 @@ def push_report_to_github(file_to_git):
     try:
         subprocess.run(["git", "add", file_to_git], cwd=BASE_DIR, check=True)
         subprocess.run(["git", "commit", "-m", f"Update report {os.path.basename(file_to_git)}"], cwd=BASE_DIR, check=True)
-        subprocess.run(["git", "push", "report_remote", "HEAD:main"], cwd=BASE_DIR, check=True)
+        subprocess.run(["git", "push", "origin", "HEAD:main"], cwd=BASE_DIR, check=True)
         print(f"{file_to_git} pushed to Github successfully.")
     except subprocess.CalledProcessError as e:
         print("Error while pushing to Github:", e)
@@ -34,7 +35,6 @@ def push_report_to_github(file_to_git):
 def run_report1():
     print("Generating CSV for Report 1...")
     subprocess.run(["python3", "sdc35_report1.py"], check=True)
-
     time.sleep(2)
     print("Building PDF for Report 1...")
     subprocess.run(["python3", "sdc35_build_pdf1.py"], check=True)
@@ -43,11 +43,11 @@ def run_report1():
         push_report_to_github(report1_to_git)
     else:
         print(f"{report1_to_git} not found, cannot push.")
+    
 
 def run_report2():
     print("Generating CSV for Report 2...")
     subprocess.run(["python3", "sdc35_report2.py"], check=True)
-
     time.sleep(2)
     print("Building PDF for Report 2...")
     subprocess.run(["python3", "sdc35_build_pdf2.py"], check=True)
@@ -58,6 +58,8 @@ def run_report2():
         print(f"{report2_to_git} not found, cannot push.")
 
 def main():
+    genCSV_result = {}
+
     while True:
         print("\n=== Modbus Report Generator ===")
         print("1. Generate Report 1")
@@ -67,10 +69,17 @@ def main():
         choice = input("Select an option: ")
         
         if choice == "1":
+            start = time.perf_counter()
             run_report1()
+            # time.sleep(2)
+            end = time.perf_counter()
+            genCSV_result["genCSV_report1"] = round(end - start, 6)
         elif choice == "2":
-            #print("Report 2 generation is currently disabled.")
+            start = time.perf_counter()
             run_report2()
+            # time.sleep(2)
+            end = time.perf_counter()
+            genCSV_result["genCSV_report2"] = round(end - start, 6)
         elif choice in ["help", "-help"]:
             helper()
         elif choice == "3":
@@ -78,6 +87,16 @@ def main():
             break
         else:
             print("Invalid choice, try again.")
+
+        file_exists = os.path.isfile("time_verification.csv")
+        with open("time_verification.csv", "a", newline="") as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(["function", "time"])
+            for name, t in genCSV_result.items():
+                # print("writing:", name, t)
+                writer.writerow([name, t])
+        
 
 if __name__ == "__main__":
     main()

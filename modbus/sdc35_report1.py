@@ -3,39 +3,42 @@ from datetime import datetime
 import time
 import subprocess
 import os
+import csv
 
 PORT = '/dev/ttyACM0'
 BAUDRATE = 9600
 
-# Tworzymy nazwę pliku z timestampem
 now = datetime.now()
 filename = f"sdc35_report1_{now.strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+filename4 = "time_verification.csv"
 
-# Otwieramy port szeregowy
 ser = serial.Serial(PORT, BAUDRATE, timeout=2)
-time.sleep(2)  # poczekaj aż Pico się ustabilizuje
+time.sleep(2)
 
 print("Sending report1 command and logging data")
+
+readcsv_result = {}
+start = time.perf_counter()
 
 with open(filename, 'w') as f:
     header_written = False
 
     try:
-        # Wyślij komendę report1 tylko raz
+        # Send 'report1' ones
         ser.write(b"report1\n")
 
-        # Czytamy linie aż pojawi się "report1 done"
+        #  Read data in file "report1 done"
         while True:
             line = ser.readline().decode(errors='ignore').strip()
             if not line:
                 continue
 
-            # Kończymy po komunikacie końcowym
+            # End after done
             if line.startswith("report1 done") or line.startswith("Connected"):
                 print("Report received completely.")
                 break
 
-            # Zapisujemy nagłówek tylko raz
+            # Save header once
             if not header_written and ',' in line:
                 f.write(line + '\n')
                 f.flush()
@@ -43,7 +46,7 @@ with open(filename, 'w') as f:
                 print("Header written:", line)
                 continue
 
-            # Zapisujemy dane CSV
+            # Save CSV data
             if header_written and ',' in line:
                 f.write(line + '\n')
                 f.flush()
@@ -54,3 +57,14 @@ with open(filename, 'w') as f:
     finally:
         ser.close()
         print(f"Serial port closed. Data saved to {filename}")
+
+        end = time.perf_counter()
+        readcsv_result["readCSV_report1"] = round(end - start, 6)
+
+        file_exists = os.path.isfile("time_verification.csv")
+        with open(filename4, 'a', newline="") as f4:
+            writer = csv.writer(f4)
+            if not file_exists:
+                writer.writerow(["function","time"])
+            for name, t in readcsv_result.items():
+                writer.writerow([name,t])

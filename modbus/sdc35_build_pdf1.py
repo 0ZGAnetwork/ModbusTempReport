@@ -166,27 +166,27 @@ for i, line in enumerate(lines):
 # for name, value in table:
 #     print(f"{name:25} | {value}")
 
-def operation_display_table():
-    global table_counter
-    elements = []
-    title = f"Table {table_counter}. Operational Display Parameters"
-    elements.append(Paragraph(title, styles["SectionHeader"]))
-    table_counter += 1
-    data = [["Register", "Value"]]
-    for key in OPERATION_DISPLAY_KEYS:
-        value = row.get(key)
-        data.append([key, "" if value is None else str(value)])
-    tbl = Table(data, colWidths=[7*cm, 7*cm])
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-    ]))
-    elements.append(tbl)
-    return elements
+# def operation_display_table():
+#     global table_counter
+#     elements = []
+#     title = f"Table {table_counter}. Operational Display Parameters"
+#     elements.append(Paragraph(title, styles["SectionHeader"]))
+#     table_counter += 1
+#     data = [["Register", "Value"]]
+#     for key in OPERATION_DISPLAY_KEYS:
+#         value = row.get(key)
+#         data.append([key, "" if value is None else str(value)])
+#     tbl = Table(data, colWidths=[7*cm, 7*cm])
+#     tbl.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+#         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+#         ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+#         ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+#         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+#     ]))
+#     elements.append(tbl)
+#     return elements
 
 def operation_display_table_with_description():
     global table_counter
@@ -211,27 +211,27 @@ def operation_display_table_with_description():
     elements.append(tbl)
     return elements
 
-def modbus_table():
-    global table_counter
-    elements = []
-    title = f"Table {table_counter}. Modbus Communication Parameters"
-    elements.append(Paragraph(title, styles["SectionHeader"]))
-    table_counter += 1
-    data = [["Register", "Value"]]
-    for key in MODBUS_KEYS:
-        value = row.get(key)
-        data.append([key, "" if value is None else str(value)])
-    tbl = Table(data, colWidths=[7*cm, 7*cm])
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-    ]))
-    elements.append(tbl)
-    return elements
+# def modbus_table():
+#     global table_counter
+#     elements = []
+#     title = f"Table {table_counter}. Modbus Communication Parameters"
+#     elements.append(Paragraph(title, styles["SectionHeader"]))
+#     table_counter += 1
+#     data = [["Register", "Value"]]
+#     for key in MODBUS_KEYS:
+#         value = row.get(key)
+#         data.append([key, "" if value is None else str(value)])
+#     tbl = Table(data, colWidths=[7*cm, 7*cm])
+#     tbl.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+#         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+#         ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+#         ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+#         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+#     ]))
+#     elements.append(tbl)
+#     return elements
 
 def modbus_table_with_description():
     global table_counter
@@ -263,27 +263,27 @@ def modbus_table_with_description():
     elements.append(tbl)
     return elements
 
-def sensor_table():
-    global table_counter
-    elements = []
-    title = f"Table {table_counter}. Sensor Parameters (Register 51)"
-    elements.append(Paragraph(title, styles["SectionHeader"]))
-    table_counter += 1
-    data = [["Register", "Value"]]
-    register_name = "pv_input_type"  
-    value = row.get(register_name)
-    data.append([register_name, "" if value is None else str(value)])
-    tbl = Table(data, colWidths=[7*cm, 7*cm])
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-    ]))
-    elements.append(tbl)
-    return elements
+# def sensor_table():
+#     global table_counter
+#     elements = []
+#     title = f"Table {table_counter}. Sensor Parameters (Register 51)"
+#     elements.append(Paragraph(title, styles["SectionHeader"]))
+#     table_counter += 1
+#     data = [["Register", "Value"]]
+#     register_name = "pv_input_type"  
+#     value = row.get(register_name)
+#     data.append([register_name, "" if value is None else str(value)])
+#     tbl = Table(data, colWidths=[7*cm, 7*cm])
+#     tbl.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+#         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+#         ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+#         ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+#         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+#     ]))
+#     elements.append(tbl)
+#     return elements
 
 def sensor_table_with_description():
     global table_counter
@@ -357,72 +357,74 @@ def generate_report1_pdf(plot_file, logo_left, logo_right, table_funcs=[]):
     doc.build(content)
     print(f"PDF saved as {pdf_file}")
 
-def table_2_params(row_index=0, rows_per_col=6, min_key_width=2.5, min_val_width=1.5):
-    with open('test_200_samples.csv', 'r', encoding='utf-8-sig') as f:
-        reader = list(csv.DictReader(f))
-        if row_index >= len(reader):
-            raise IndexError("row does not exist in CSV")
-        row = reader[row_index]
+# def table_2_params(row_index=0, rows_per_col=6, min_key_width=2.5, min_val_width=1.5):
+#     with open('test_200_samples.csv', 'r', encoding='utf-8-sig') as f:
+#         reader = list(csv.DictReader(f))
+#         if row_index >= len(reader):
+#             raise IndexError("row does not exist in CSV")
+#         row = reader[row_index]
 
-    keys = CSV_HEADERS
-    font_name = 'Helvetica'
-    font_size = 10
-    page_width, _ = A4
-    left_margin = right_margin = 2 * cm
-    usable_width = page_width - left_margin - right_margin
+#     keys = CSV_HEADERS
+#     font_name = 'Helvetica'
+#     font_size = 10
+#     page_width, _ = A4
+#     left_margin = right_margin = 2 * cm
+#     usable_width = page_width - left_margin - right_margin
 
-    kv_list = [[k, str(row.get(k, ""))] for k in keys]
-    num_vars = len(kv_list)
+#     kv_list = [[k, str(row.get(k, ""))] for k in keys]
+#     num_vars = len(kv_list)
 
-    key_widths = [
-        max(stringWidth(k, font_name, font_size) / 28.35, min_key_width)
-        for k, _ in kv_list
-    ]
-    val_widths = [
-        max(stringWidth(v, font_name, font_size) / 28.35, min_val_width)
-        for _, v in kv_list
-    ]
+#     key_widths = [
+#         max(stringWidth(k, font_name, font_size) / 28.35, min_key_width)
+#         for k, _ in kv_list
+#     ]
+#     val_widths = [
+#         max(stringWidth(v, font_name, font_size) / 28.35, min_val_width)
+#         for _, v in kv_list
+#     ]
 
-    col_pair_widths = [kw + vw for kw, vw in zip(key_widths, val_widths)]
-    max_pair_width = max(col_pair_widths)
+#     col_pair_widths = [kw + vw for kw, vw in zip(key_widths, val_widths)]
+#     max_pair_width = max(col_pair_widths)
 
-    max_cols = int(usable_width // (max_pair_width * cm))
-    num_cols = min(max_cols, (num_vars + rows_per_col - 1) // rows_per_col)
-    num_cols = max(num_cols, 1)
+#     max_cols = int(usable_width // (max_pair_width * cm))
+#     num_cols = min(max_cols, (num_vars + rows_per_col - 1) // rows_per_col)
+#     num_cols = max(num_cols, 1)
 
-    rows_per_col_actual = (num_vars + num_cols - 1) // num_cols
+#     rows_per_col_actual = (num_vars + num_cols - 1) // num_cols
 
-    table_data = []
-    for i in range(rows_per_col_actual):
-        row_data = []
-        for c in range(num_cols):
-            idx = c * rows_per_col_actual + i
-            if idx < num_vars:
-                row_data.extend(kv_list[idx])
-            else:
-                row_data.extend(["", ""])
-        table_data.append(row_data)
+#     table_data = []
+#     for i in range(rows_per_col_actual):
+#         row_data = []
+#         for c in range(num_cols):
+#             idx = c * rows_per_col_actual + i
+#             if idx < num_vars:
+#                 row_data.extend(kv_list[idx])
+#             else:
+#                 row_data.extend(["", ""])
+#         table_data.append(row_data)
 
-    col_widths = []
-    for c in range(num_cols):
-        idx_start = c * rows_per_col_actual
-        idx_end = min(idx_start + rows_per_col_actual, num_vars)
-        col_widths.extend([
-            max(key_widths[idx_start:idx_end]) * cm,
-            max(val_widths[idx_start:idx_end]) * cm
-        ])
+#     col_widths = []
+#     for c in range(num_cols):
+#         idx_start = c * rows_per_col_actual
+#         idx_end = min(idx_start + rows_per_col_actual, num_vars)
+#         col_widths.extend([
+#             max(key_widths[idx_start:idx_end]) * cm,
+#             max(val_widths[idx_start:idx_end]) * cm
+#         ])
 
-    table = Table(table_data, colWidths=col_widths)
-    table.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP')
-    ]))
+#     table = Table(table_data, colWidths=col_widths)
+#     table.setStyle(TableStyle([
+#         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+#         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+#         ('FONTSIZE', (0, 0), (-1, -1), 9),
+#         ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
+#         ('VALIGN', (0, 0), (-1, -1), 'TOP')
+#     ]))
 
-    return table
+#     return table
 
+build_result = {}
+start = time.perf_counter()
 generate_report1_pdf(
     plot_file="report1_plot.png",
     logo_left=logo_file,
@@ -432,39 +434,49 @@ generate_report1_pdf(
     #     lambda: table_alarms(row_index=0)
     # ]
 )
+end = time.perf_counter()
+build_result["build_report1"] = round(end - start, 6)
 
-def push_report_to_github(report1_to_git):
-    if not os.path.exists(report1_to_git):
-        print(f"{report1_to_git} does not exist, cannot push to GitHub.")
-        return
-    try:
-        subprocess.run(["git", "add", report1_to_git], cwd=BASE_DIR, check=True)
+file_exists = os.path.isfile("time_verification.csv")
+with open("time_verification.csv", "a", newline="") as f:
+    writer = csv.writer(f)
+    if not file_exists:
+        writer.writerow(["function", "time"])
+    for name, t in build_result.items():
+        writer.writerow([name, t])
 
-        subprocess.run(["git", "commit", "-m", f"Update report {os.path.basename(report1_to_git)}"], cwd=BASE_DIR, check=True)
+# def push_report_to_github(report1_to_git):
+#     if not os.path.exists(report1_to_git):
+#         print(f"{report1_to_git} does not exist, cannot push to GitHub.")
+#         return
+#     try:
+#         subprocess.run(["git", "add", report1_to_git], cwd=BASE_DIR, check=True)
 
-        subprocess.run(["git", "push", "origin", "main"], cwd=BASE_DIR, check=True)
-        print(f"{report1_to_git} pushed to Github succesfully.")
+#         subprocess.run(["git", "commit", "-m", f"Update report {os.path.basename(report1_to_git)}"], cwd=BASE_DIR, check=True)
 
-    except subprocess.CalledProcessError as e:
-        print("Error while pushing to Github:", e)
+#         subprocess.run(["git", "push", "origin", "main"], cwd=BASE_DIR, check=True)
+#         print(f"{report1_to_git} pushed to Github succesfully.")
+
+#     except subprocess.CalledProcessError as e:
+#         print("Error while pushing to Github:", e)
 
 
-def helper():
-    print("command: exit, report1, report2, test, -help ")
-    print(""" 
-        MODBUS TEMPERATURE CONTEROL PROJECT
+# def helper():
+#     print("command: exit, report1, report2, test, -help ")
+#     print(""" 
+#         MODBUS TEMPERATURE CONTEROL PROJECT
           
-        This script can generate 3 report:
-        - report 1: read current configuration and data,
-        - report 2: receive data for 5 min,
-        - report 3: receive data for 24 h
+#         This script can generate 3 report:
+#         - report 1: read current configuration and data,
+#         - report 2: receive data for 5 min,
+#         - report 3: receive data for 24 h
 
-        # each report generate one pdf file on github !
+#         # each report generate one pdf file on github !
           
-        run:
-          report1,
-          report2,
-          report3,
-          exit,
-          help
-          """)
+#         run:
+#           report1,
+#           report2,
+#           report3,
+#           exit,
+#           help
+#           """)

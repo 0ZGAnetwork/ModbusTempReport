@@ -28,7 +28,7 @@ from reportlab.pdfbase import pdfmetrics
 import subprocess                                   # for upload report to github
 
 #  # Update as needed
-SERIAL_PORT = 'COM6'
+SERIAL_PORT = '/dev/ttyACM0' #'COM6'
 BAUD_RATE = 9600
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 

@@ -166,27 +166,27 @@ for i, line in enumerate(lines):
 # for name, value in table:
 #     print(f"{name:25} | {value}")
 
-def operation_display_table():
-    global table_counter
-    elements = []
-    title = f"Table {table_counter}. Operational Display Parameters"
-    elements.append(Paragraph(title, styles["SectionHeader"]))
-    table_counter += 1
-    data = [["Register", "Value"]]
-    for key in OPERATION_DISPLAY_KEYS:
-        value = row.get(key)
-        data.append([key, "" if value is None else str(value)])
-    tbl = Table(data, colWidths=[7*cm, 7*cm])
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-    ]))
-    elements.append(tbl)
-    return elements
+# def operation_display_table():
+#     global table_counter
+#     elements = []
+#     title = f"Table {table_counter}. Operational Display Parameters"
+#     elements.append(Paragraph(title, styles["SectionHeader"]))
+#     table_counter += 1
+#     data = [["Register", "Value"]]
+#     for key in OPERATION_DISPLAY_KEYS:
+#         value = row.get(key)
+#         data.append([key, "" if value is None else str(value)])
+#     tbl = Table(data, colWidths=[7*cm, 7*cm])
+#     tbl.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+#         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+#         ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+#         ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+#         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+#     ]))
+#     elements.append(tbl)
+#     return elements
 
 def operation_display_table_with_description():
     global table_counter
@@ -211,27 +211,27 @@ def operation_display_table_with_description():
     elements.append(tbl)
     return elements
 
-def modbus_table():
-    global table_counter
-    elements = []
-    title = f"Table {table_counter}. Modbus Communication Parameters"
-    elements.append(Paragraph(title, styles["SectionHeader"]))
-    table_counter += 1
-    data = [["Register", "Value"]]
-    for key in MODBUS_KEYS:
-        value = row.get(key)
-        data.append([key, "" if value is None else str(value)])
-    tbl = Table(data, colWidths=[7*cm, 7*cm])
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-    ]))
-    elements.append(tbl)
-    return elements
+# def modbus_table():
+#     global table_counter
+#     elements = []
+#     title = f"Table {table_counter}. Modbus Communication Parameters"
+#     elements.append(Paragraph(title, styles["SectionHeader"]))
+#     table_counter += 1
+#     data = [["Register", "Value"]]
+#     for key in MODBUS_KEYS:
+#         value = row.get(key)
+#         data.append([key, "" if value is None else str(value)])
+#     tbl = Table(data, colWidths=[7*cm, 7*cm])
+#     tbl.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+#         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+#         ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+#         ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+#         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+#     ]))
+#     elements.append(tbl)
+#     return elements
 
 def modbus_table_with_description():
     global table_counter
@@ -263,27 +263,27 @@ def modbus_table_with_description():
     elements.append(tbl)
     return elements
 
-def sensor_table():
-    global table_counter
-    elements = []
-    title = f"Table {table_counter}. Sensor Parameters (Register 51)"
-    elements.append(Paragraph(title, styles["SectionHeader"]))
-    table_counter += 1
-    data = [["Register", "Value"]]
-    register_name = "pv_input_type"  
-    value = row.get(register_name)
-    data.append([register_name, "" if value is None else str(value)])
-    tbl = Table(data, colWidths=[7*cm, 7*cm])
-    tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-        ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
-        ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
-        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
-    ]))
-    elements.append(tbl)
-    return elements
+# def sensor_table():
+#     global table_counter
+#     elements = []
+#     title = f"Table {table_counter}. Sensor Parameters (Register 51)"
+#     elements.append(Paragraph(title, styles["SectionHeader"]))
+#     table_counter += 1
+#     data = [["Register", "Value"]]
+#     register_name = "pv_input_type"  
+#     value = row.get(register_name)
+#     data.append([register_name, "" if value is None else str(value)])
+#     tbl = Table(data, colWidths=[7*cm, 7*cm])
+#     tbl.setStyle(TableStyle([
+#         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+#         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+#         ("FONT", (0, 0), (-1, 0), "Helvetica-Bold"),
+#         ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+#         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+#         ("BOTTOMPADDING", (0, 0), (-1, 0), 8),
+#     ]))
+#     elements.append(tbl)
+#     return elements
 
 def sensor_table_with_description():
     global table_counter
@@ -413,6 +413,8 @@ def generate_report2_pdf(plot_file, logo_left, logo_right, table_funcs=[]):
     doc.build(content)
     print(f"PDF saved as {pdf_file}")
 
+build_result = {}
+start = time.perf_counter()
 generate_report2_pdf(
     plot_file="report2_plot.png",
     logo_left=logo_file,
@@ -422,3 +424,13 @@ generate_report2_pdf(
     #     lambda: table_alarms(row_index=0)
     # ]
 )
+end = time.perf_counter()
+build_result["build_report2"] = round(end - start, 6)
+
+file_exists = os.path.isfile("time_verification.csv")
+with open("time_verification.csv", "a", newline="") as f:
+    writer = csv.writer(f)
+    if not file_exists:
+        writer.writerow(["function", "time"])
+    for name, t in build_result.items():
+        writer.writerow([name, t])
