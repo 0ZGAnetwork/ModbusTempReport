@@ -1,7 +1,8 @@
 #include "driver_control.h"
 #include "driver.h"
-#include "sdc35_csv.h"
+// #include "sdc35_csv.h"
 #include "sdc35_status.h"
+// #include "hardware/rtc.h"
 
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
@@ -16,11 +17,10 @@ int main(void) {
 
     SDC35Status status;
 
-    const uint GPIO2 = 2;    // dioda na Pico 2W
+    const uint GPIO2 = 2;
     gpio_init(GPIO2);
     gpio_set_dir(GPIO2, GPIO_OUT);
 
-    // krótkie zapalenie diody przy starcie
     gpio_put(GPIO2, 1);
     sleep_ms(200);
     gpio_put(GPIO2, 0);
@@ -28,7 +28,6 @@ int main(void) {
     char cmd[16];
     int i = 0;
 
-    // poczekaj na połączenie USB
     while (!stdio_usb_connected()) {
         tight_loop_contents();
     }
@@ -40,11 +39,10 @@ int main(void) {
         int c = getchar_timeout_us(100);
         if (c == PICO_ERROR_TIMEOUT) continue;
 
-        // ignoruj znaki kontrolne w środku komendy
         if (c == '\r') continue;
 
-        if (c == '\n') {  // koniec komendy
-            if (i == 0) continue;  // pusta linia
+        if (c == '\n') { 
+            if (i == 0) continue;
             cmd[i] = '\0';
             i = 0;
 
@@ -78,7 +76,6 @@ int main(void) {
                         gpio_put(GPIO2, 0);
                     }
 
-                    // odczyt exit w trakcie report2
                     int c2 = getchar_timeout_us(100);
                     if (c2 != PICO_ERROR_TIMEOUT) {
                         if (c2 == '\n') {
@@ -88,8 +85,7 @@ int main(void) {
                                 printf("Exiting program.\n");
                                 return 0;
                             }
-                        } else if (i < sizeof(cmd)-1 && c2 >= 32 && c2 <= 126) {  // tylko drukowalne znaki
-                            cmd[i++] = c2;
+                        } else if (i < sizeof(cmd)-1 && c2 >= 32 && c2 <= 126) {                              cmd[i++] = c2;
                         }
                     }
                 }
@@ -113,7 +109,7 @@ int main(void) {
 
             printf("Waiting for command...\n");
         }
-        else if (i < sizeof(cmd)-1 && c >= 32 && c <= 126) {  // tylko drukowalne
+        else if (i < sizeof(cmd)-1 && c >= 32 && c <= 126) {
             cmd[i++] = c;
         }
     }

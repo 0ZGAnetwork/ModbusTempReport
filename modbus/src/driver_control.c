@@ -5,6 +5,7 @@
 #include "pico/stdlib.h"
 #include <string.h>
 #include <math.h>
+#include "hardware/rtc.h"
 
 #define SLAVE_ADDR 2
 
@@ -91,17 +92,16 @@ int modbus_receive(uint8_t *buf, int expected_len, int timeout_ms) {
     return -1; // timeout
 }
 
-int modbus_read_regs(uint16_t start,
-                     uint16_t count,
-                     uint16_t *out)
-{
+int modbus_read_regs(uint16_t start, uint16_t count, uint16_t *out){
+    modbus_flush_rx();
     uint8_t resp[256];
     int expected = 5 + 2 * count;
     modbus_read(start, count); // frame send
     int timeout_ms = 50 + count * 15; 
     int len = modbus_receive(resp, expected, timeout_ms);
     if (len != expected)
-        return -1; // timeout / niepełna ramka
+        return -1; // timeout
+        modbus_flush_rx();
     //print_frame_hex(resp, len, "RX");
     if (!crc16_check(resp, len))
         return -2;
@@ -476,8 +476,34 @@ void create_snapshot(SDC35Status *status) {
 
 }
 
+void csv_print_row(const SDC35Status *status) {
+    char ts[32];
+    if (status->timestamp[0] == '\0') {
+        format_timestamp(ts, sizeof(ts));
+    } else {
+        strncpy(ts, status->timestamp, sizeof(ts));
+        ts[sizeof(ts) - 1] = '\0';
+    }
+
+    printf("%s,%.1f,%.1f,%.1f,%u,%u,%u,%u,%u,%u,%u\n",
+           ts,
+           status->pv,
+           status->sv,
+           status->lsp,
+           status->pid_group,
+           status->control_action,
+           status->output_at_pv_alarm,
+           status->alarm_pv_over,
+           status->alarm_pv_under,
+           status->alarm_pv_failure,
+           status->alarm_hardware_failure);
+}
+
 void show_Snapshot_uart(const SDC35Status *status)
 {
+    char ts[32];
+    format_timestamp(ts, sizeof(ts));
+    printf("Timestamp: %s\n", ts);
     printf("===== SDC35 Snapshot =====\n");
 
     // --- Operation display ---
@@ -561,7 +587,12 @@ void show_Snapshot_uart(const SDC35Status *status)
     printf("Timestamp: %s\n", status->timestamp);
     printf("===========================\n");
 }
-
-void format_timestamp(char *buf, int buf_size){
-    snprintf(buf, buf_size, "Status: Test Snapshot ");
+//     s
+void format_timestamp(char *buf, int buf_size) {
+    printf(buf, buf_size, "Status: Test Snapshot ");
+    // datetime_t now;
+    // rtc_get_datetime(&now);
+    // snprintf(buf, buf_size, "%04u-%02u-%02u %02u:%02u:%02u",
+    //          now.year, now.month, now.day,
+    //          now.hour, now.min, now.sec);
 }

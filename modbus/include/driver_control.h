@@ -30,6 +30,7 @@ void read_aux_outputs(SDC35Status *status);
 void modbus_read(uint16_t start, uint16_t count);
 int modbus_receive(uint8_t *buf, int expected_len, int timeout_ms);
 int modbus_read_regs(uint16_t start, uint16_t count, uint16_t *out);
+void csv_print_row(const SDC35Status *status);
 
 #endif // DRIVER_CONTROL_H      
     

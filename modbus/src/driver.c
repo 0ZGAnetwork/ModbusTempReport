@@ -14,11 +14,11 @@ void uart_init_max485() {
 
 int modbus_check_slave(int slave_addr) {
         int dummy;
-        int result = read_modbus_registers(slave_addr, 9204, 1, &dummy); // próbujemy odczytać pierwszy rejestr
+        int result = read_modbus_registers(slave_addr, 9204, 1, &dummy); // check for first register
         if (result == 0) {
-            return 1; // slave odpowiada
+            return 1; // responce
         } else {
-            return 0; // brak odpowiedzi / błąd CRC / wyjątek
+            return 0; // failure
         }
     }
 
