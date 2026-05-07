@@ -1,20 +1,27 @@
 build/
+
+# compiled output
 *.o
 *.elf
 *.bin
 *.map
 *.uf2
-.vscode/
-test_crc/
-*.csv
+
+# python env
+.venv/
+modbus_env/
+
+# csv fles
 test_from_port.csv
 test_to_csv.csv
-*.vscode
+
+# iimages 
 *.csv
 *.png
 *.jpg
-.venv/
-build/
-include/
-src/
-modbus_env/
+
+# IDE
+.vscode/
+
+# folderss
+test_crc/#
