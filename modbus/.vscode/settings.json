@@ -6,6 +6,11 @@
         "driver.h": "c",
         "stdio.h": "c"
     },
+<<<<<<< Updated upstream
     "cmake.sourceDirectory": "/home/ozga/Project/ModbusTempReport/modbus",
+=======
+    // "cmake.sourceDirectory": "C:/Users/kanal/Desktop/M_Etap_I/EmR/modbus",
+    "cmake.sourceDirectory": "${workspaceFolder}",
+>>>>>>> Stashed changes
     "C_Cpp.dimInactiveRegions": false
 }
