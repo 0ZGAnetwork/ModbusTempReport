@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
-#include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake) # old sdk
-#set(PICO_SDK_PATH "C:/pico-sdk")
 
-# include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake) # new sdk
-# include(pico_sdk_import.cmake)
-# set(PICO_SDK_PATH "/home/pawel/pico-sdk")
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
+
 
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+
 message(STATUS "ENV PICO_SDK_PATH = $ENV{PICO_SDK_PATH}")
 
 project(Modbus_example C CXX ASM)
@@ -15,7 +14,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
-
+s
 
 set(PROJECT_NAME Modbus_example)
 
