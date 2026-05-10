@@ -13,7 +13,7 @@ filename4 = "time_verification.csv"
 ser = serial.Serial(PORT, BAUDRATE, timeout=2)
 time.sleep(2)  
 
-print("Starting 1-minute logging, sending report1 every 5 seconds")
+print("Starting 1-minute logging, sending report2 every 5 seconds")
 
 readcsv_result = {}
 start = time.perf_counter()
@@ -27,14 +27,14 @@ with open(filename2, 'w') as f:
 
     try:
         while time.time() - start_time < duration:
-            ser.write(b"report1\n")
+            ser.write(b"report2\n")
 
             while True:
                 line = ser.readline().decode(errors='ignore').strip()
                 if not line:
                     continue
 
-                if line.startswith("report1 done") or line.startswith("Connected"):
+                if line.startswith("report2 done") or line.startswith("Connected"):
                     break
 
                 if not header_written and line.startswith("time_ms"):

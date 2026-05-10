@@ -93,10 +93,39 @@ int main(void) {
                 printf("report2 done\n");
             }
             else if (strcmp(cmd, "report3") == 0) {
-                printf("test mode 3\n");
-                gpio_put(GPIO2, 1);
-                sleep_ms(200);
-                gpio_put(GPIO2, 0);
+                uint32_t duration_ms = 60000;
+                uint32_t last_time = to_ms_since_boot(get_absolute_time());
+                uint32_t start_time = last_time;
+
+                while (to_ms_since_boot(get_absolute_time()) - start_time < duration_ms) {
+                    uint32_t now = to_ms_since_boot(get_absolute_time());
+                    if (now - last_time >= 5000) { 
+                        last_time = now;
+
+                        create_snapshot(&status);
+                        show_Snapshot_uart(&status);
+                        csv_print_row(&status);
+
+                        gpio_put(GPIO2, 1);
+                        sleep_ms(200);
+                        gpio_put(GPIO2, 0);
+                    }
+
+                    int c2 = getchar_timeout_us(100);
+                    if (c2 != PICO_ERROR_TIMEOUT) {
+                        if (c2 == '\n') {
+                            cmd[i] = '\0';
+                            i = 0;
+                            if (strcmp(cmd, "exit") == 0) {
+                                printf("Exiting program.\n");
+                                return 0;
+                            }
+                        } else if (i < sizeof(cmd)-1 && c2 >= 32 && c2 <= 126) {                              cmd[i++] = c2;
+                        }
+                    }
+                }
+
+                printf("report3 done\n");
             }
             else if (strcmp(cmd, "exit") == 0) {
                 printf("Exiting program.\n");

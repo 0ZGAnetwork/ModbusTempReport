@@ -14,7 +14,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 pico_sdk_init()
-s
 
 set(PROJECT_NAME Modbus_example)
 

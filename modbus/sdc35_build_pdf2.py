@@ -33,7 +33,6 @@ import subprocess
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 report2_to_git = os.path.join(BASE_DIR, "Report2.pdf")
 graph = os.path.join(BASE_DIR, "report2_plot.png")
-#print(f"Report2 to git: {report2_to_git}") # debug
 folder = "./" # find all files
 files = glob.glob(os.path.join(folder, "sdc35_report2_*.csv"))
 logo_file = os.path.join(BASE_DIR, "MTCPreports.jpg")
