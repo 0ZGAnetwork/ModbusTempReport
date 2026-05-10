@@ -9,6 +9,7 @@ build/
 
 # python env
 .venv/
+venv/
 modbus_env/
 
 # csv fles
