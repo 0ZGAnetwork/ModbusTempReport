@@ -1,4 +1,4 @@
-# $${\color{Blue}Mgs \space project \space CICD \space TDD: \space \color{Light}Automatically builds, tests, and integrates code for modbus project}$$
+# $${\color{Blue}Mgs \space project \space CICD \space TDD: \space \color{Light}Automatically \space builds, \space tests, \space and \space integrates \spacecode \space for \space modbus \space project}$$
 
 * TODO: upload README
 
