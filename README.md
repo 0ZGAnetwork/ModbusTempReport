@@ -1,6 +1,5 @@
-$${\color{red}Text}$$
 $${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
-# Mgs_project_CICD_TDD -- Automatically builds, tests, and integrates code for modbus project
+# $${\color{aqua}Mgs_project_CICD_TDD -- Automatically builds, tests, and integrates code for modbus project}$$
 * TODO: upload README
 
 # modbus -- MODBUS RTU communication project
