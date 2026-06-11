@@ -1,3 +1,4 @@
+<code style="color : name_color">text</code>
 # Mgs_project_CICD_TDD -- Automatically builds, tests, and integrates code for modbus project
 * TODO: upload README
 
