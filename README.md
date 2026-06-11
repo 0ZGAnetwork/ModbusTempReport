@@ -1,8 +1,4 @@
-<code style="color : aqua">text</code>
-- a
-+ a
-! a
-@@ a
+$${\color{red}Text}$$
 $${\color{red}Welcome \space \color{lightblue}To \space \color{orange}Stackoverflow}$$
 # Mgs_project_CICD_TDD -- Automatically builds, tests, and integrates code for modbus project
 * TODO: upload README
