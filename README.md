@@ -1,6 +1,5 @@
-# $${\color{Blue}Mgs \space project \space CICD \space TDD: \space \color{Light}Automatically \space builds, \space tests, \space and \space integrates \spacecode \space for \space modbus \space project}$$
-
-# $${\color{Blue}{Mgs\ Project\ CICD\ TDD:\ }\color{Gray}{Automatically\ builds,\ tests,\ and\ integrates\ code\ for\ Modbus\ project}}$$
+# $${\color{Blue}{Mgs\ Project\ CICD\ TDD:\ }$$
+$$\color{Gray}{Automatically\ builds,\ tests,\ and\ integrates\ code\ for\ Modbus\ project}}$$
 
 * TODO: upload README
 
