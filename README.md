@@ -3,7 +3,7 @@ $${\color{Gray}{Automatically\ builds,\ tests,\ and\ integrates\ code\ for\ Modb
 
 * TODO: upload README
 
-# $${\color{bue}modbus -- MODBUS RTU communication project}$$
+# $${\color{Blue}{modbus\ MODBUS\ RTU\ communication\ project\}}$$
 ## PT100 -> SDC35 -> RS485 -> Raspberry Pico
 ### About:
 This project uses the Modbus RTU communication (board TTL485)" protocol to exchange data between the SDC35 and the Raspberry Pi Pico 2W, which acts as the central data acquisition and reporting unit.
